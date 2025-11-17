@@ -25,17 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-/**
- * START NEW SHOOT PAGE
- *
- * - 4-step wizard + Generate step
- * - Upload preview, avatar select, scene select, lighting sliders
- * - Simulated generate pipeline with progress stages
- * - Download/save results (simulated)
- *
- * NOTE: this is self-contained UI. Replace mocks with real API calls as needed.
- */
-
 const steps = [
   { id: 1, title: "Product", icon: <Shirt className="h-5 w-5" /> },
   { id: 2, title: "Avatar", icon: <Users className="h-5 w-5" /> },
@@ -72,30 +61,20 @@ type GeneratedImage = { id: string; url: string; variant: string };
 
 export default function NewShootPageImproved() {
   const [currentStep, setCurrentStep] = useState<number>(1);
-
-  // Product & upload state
   const [selectedProductType, setSelectedProductType] = useState<string | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [productPreviewUrl, setProductPreviewUrl] = useState<string | null>(null);
-  const [processedPreviewUrl, setProcessedPreviewUrl] = useState<string | null>(null); // simulated bg removed
-
-  // Avatar state
+  const [processedPreviewUrl, setProcessedPreviewUrl] = useState<string | null>(null);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [showCreateAvatarModal, setShowCreateAvatarModal] = useState(false);
-
-  // Scene state
   const [selectedScene, setSelectedScene] = useState<string | null>(null);
   const [scenePrompt, setScenePrompt] = useState<string>("Premium studio with soft purple lights and wooden floor");
   const [isGeneratingScene, setIsGeneratingScene] = useState(false);
-
-  // Lighting & camera
   const [brightness, setBrightness] = useState(0);
   const [temperature, setTemperature] = useState(5500);
   const [shadowDepth, setShadowDepth] = useState(50);
   const [aperture, setAperture] = useState(2.8);
   const [focalLength, setFocalLength] = useState(35);
-
-  // Generate pipeline
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateStage, setGenerateStage] = useState<number>(0);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
@@ -106,30 +85,23 @@ export default function NewShootPageImproved() {
     "Adjusting lighting",
     "Rendering final output",
   ];
-
-  // refs
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // cleanup preview url
   useEffect(() => {
     return () => {
       if (productPreviewUrl) URL.revokeObjectURL(productPreviewUrl);
       if (processedPreviewUrl) URL.revokeObjectURL(processedPreviewUrl);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [productPreviewUrl, processedPreviewUrl]);
 
-  // handle local upload
   function handleFileSelected(file?: File | null) {
     if (!file) return;
     setProductFile(file);
     const url = URL.createObjectURL(file);
     setProductPreviewUrl(url);
 
-    // simulate background removal by creating a "processed" variant using same blob (for mock)
-    // In real app, call an API to process background removal and set processedPreviewUrl accordingly
     setTimeout(() => {
-      setProcessedPreviewUrl(url); // for now same preview; replace with real processed URL
+      setProcessedPreviewUrl(url);
     }, 600);
   }
 
@@ -144,21 +116,16 @@ export default function NewShootPageImproved() {
     handleFileSelected(f);
   }
 
-  // scene generation mock
   async function generateSceneFromPrompt() {
     if (!scenePrompt.trim()) return;
     setIsGeneratingScene(true);
-    // simulate API delay
     await new Promise((r) => setTimeout(r, 1200));
-    // pick random scene as "generated"
     const random = mockScenes[Math.floor(Math.random() * mockScenes.length)];
     setSelectedScene(random.id);
     setIsGeneratingScene(false);
   }
 
-  // generate pipeline simulation
   function startGenerate() {
-    // validations
     if (!productFile) {
       alert("Please upload a product image before generating.");
       setCurrentStep(1);
@@ -184,7 +151,6 @@ export default function NewShootPageImproved() {
       setGenerateStage(stage);
       if (stage >= generateStages.length) {
         clearInterval(interval);
-        // produce mock generated images after completion
         const results: GeneratedImage[] = new Array(6).fill(null).map((_, i) => ({
           id: `g-${Date.now()}-${i}`,
           url: productPreviewUrl ?? `https://picsum.photos/800/1000?random=${Math.floor(Math.random() * 1000) + i}`,
@@ -198,9 +164,7 @@ export default function NewShootPageImproved() {
     }, 900);
   }
 
-  // download result (simulated by opening image)
   function handleDownload(img: GeneratedImage) {
-    // create a temporary link to download
     const a = document.createElement("a");
     a.href = img.url;
     a.download = `${img.id}.jpg`;
@@ -209,14 +173,11 @@ export default function NewShootPageImproved() {
     a.remove();
   }
 
-  // step navigation helpers
   function gotoStep(n: number) {
     setCurrentStep(n);
-    // scroll top of main content on mobile for UX
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // responsive: if user clicks Continue on last step -> generate
   function handleContinue() {
     if (currentStep < 5) {
       const next = Math.min(currentStep + 1, 5);
@@ -226,15 +187,14 @@ export default function NewShootPageImproved() {
     }
   }
 
-  // small helper to render step content
   function renderStep() {
     switch (currentStep) {
       case 1:
         return (
           <section className="space-y-8 animate-in fade-in">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Select Product Type (Optional)</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3">
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold">Select Product Type (Optional)</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
                 {productTypes.map((type) => {
                   const active = selectedProductType === type.name;
                   return (
@@ -245,57 +205,48 @@ export default function NewShootPageImproved() {
                       className={cn(
                         "flex flex-col items-center gap-2 p-3 rounded-xl border transition",
                         active
-                          ? "border-2 border-[#FFB400] bg-[#FFB4000A] shadow-md"
-                          : "border-border hover:border-[#FFB400]/60"
+                          ? "border-2 border-[#FFB400] bg-[#FFB400]/10 shadow-md"
+                          : "border-border hover:border-primary/60"
                       )}
                     >
-                      <div className="p-2 rounded-md bg-card">
+                      <div className="p-2 rounded-md bg-card/80">
                         {React.cloneElement(type.icon as any, { className: "h-6 w-6" })}
                       </div>
-                      <span className="text-sm font-medium">{type.name}</span>
+                      <span className="text-sm font-medium text-center">{type.name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div>
-              <h2 className="text-2xl font-bold">Upload Your Product</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                StudioForge will auto-remove backgrounds & prepare your product for the shoot.
-              </p>
-            </div>
-
             <div
               onDrop={onDropFile}
               onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed rounded-xl p-4 bg-transparent transition hover:border-[#FFB400]/60"
+              className="border-2 border-dashed rounded-xl p-4 bg-transparent transition hover:border-primary/60"
             >
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <label
                     htmlFor="file-input"
                     className="flex flex-col items-center justify-center gap-4 p-6 rounded-lg cursor-pointer"
                   >
                     <UploadCloud className="h-12 w-12 text-muted-foreground" />
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                      >
-                        Upload Product Image
-                      </Button>
-                      <input
-                        id="file-input"
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={onFileInputChange}
-                        className="sr-only"
-                      />
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">or drag & drop image here (PNG, JPG, up to 50MB)</p>
+                    <Button
+                      variant="outline"
+                      onClick={(e) => { e.preventDefault(); fileInputRef.current?.click(); }}
+                      className="flex items-center gap-2"
+                    >
+                      Upload Product Image
+                    </Button>
+                    <input
+                      id="file-input"
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={onFileInputChange}
+                      className="sr-only"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">or drag & drop image here (PNG, JPG)</p>
                   </label>
                 </div>
 
@@ -315,28 +266,6 @@ export default function NewShootPageImproved() {
                       </div>
                     )}
                   </Card>
-
-                  <div className="flex items-center gap-2 text-sm">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        className="accent-[#FFB400] mr-2"
-                        checked={!!processedPreviewUrl}
-                        readOnly
-                      />
-                      Show processed (bg removed)
-                    </label>
-                    <div className="text-xs text-muted-foreground ml-auto">Shadow</div>
-                    <input
-                      aria-label="shadow"
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={shadowDepth}
-                      onChange={(e) => setShadowDepth(Number(e.target.value))}
-                      className="w-24"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -351,7 +280,7 @@ export default function NewShootPageImproved() {
             </div>
 
             <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {mockAvatars.map((a) => {
                   const active = selectedAvatar === a.id;
                   return (
@@ -360,7 +289,7 @@ export default function NewShootPageImproved() {
                       onClick={() => setSelectedAvatar(a.id)}
                       className={cn(
                         "p-2 rounded-xl border transition flex flex-col items-center gap-2",
-                        active ? "border-2 border-[#28A92B] bg-[#28A92B0A] shadow" : "border-border hover:border-[#FFB400]/60"
+                        active ? "border-2 border-green-500 bg-green-500/10 shadow" : "border-border hover:border-primary/60"
                       )}
                       aria-pressed={active}
                     >
@@ -375,7 +304,7 @@ export default function NewShootPageImproved() {
                   onClick={() => setShowCreateAvatarModal(true)}
                   className="p-2 rounded-xl border-dashed border-2 border-border flex items-center justify-center"
                 >
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center text-center">
                     <div className="rounded-full p-3 bg-card mb-2">
                       <Users className="h-6 w-6" />
                     </div>
@@ -392,7 +321,6 @@ export default function NewShootPageImproved() {
                       <h4 className="font-semibold">Selected Avatar</h4>
                       <p className="text-xs text-muted-foreground">Preview & quick controls</p>
                     </div>
-                    <div className="text-xs text-muted-foreground">Pose: Default</div>
                   </div>
 
                   <div className="flex flex-col items-center gap-3">
@@ -423,7 +351,6 @@ export default function NewShootPageImproved() {
               </aside>
             </div>
 
-            {/* Create Avatar modal */}
             {showCreateAvatarModal && (
               <div
                 role="dialog"
@@ -440,22 +367,6 @@ export default function NewShootPageImproved() {
                     <button onClick={() => setShowCreateAvatarModal(false)} className="p-1 rounded">
                       <X />
                     </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="block">
-                      <div className="text-sm font-medium">Avatar Name</div>
-                      <input className="w-full mt-1 p-2 rounded border" placeholder="Enter name (e.g., Zara)" />
-                    </label>
-
-                    <div className="flex gap-2">
-                      <Button onClick={() => { setShowCreateAvatarModal(false); alert("Avatar created (mock)"); }}>
-                        Create (Mock)
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowCreateAvatarModal(false)}>
-                        Cancel
-                      </Button>
-                    </div>
                   </div>
                 </Card>
               </div>
@@ -480,7 +391,7 @@ export default function NewShootPageImproved() {
                       onClick={() => setSelectedScene(s.id)}
                       className={cn(
                         "rounded-lg overflow-hidden border transition",
-                        active ? "border-2 border-[#FFB400]" : "border-border hover:scale-[1.02]"
+                        active ? "border-2 border-primary" : "border-border hover:scale-[1.02]"
                       )}
                     >
                       <img src={s.thumb} alt={s.name} className="h-36 w-full object-cover" />
@@ -494,40 +405,18 @@ export default function NewShootPageImproved() {
 
               <aside className="space-y-3">
                 <Card className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold">AI Scene Generator</h4>
-                      <p className="text-xs text-muted-foreground">Describe a scene and generate it.</p>
-                    </div>
-                  </div>
-
+                  <h4 className="font-semibold">AI Scene Generator</h4>
                   <textarea
                     value={scenePrompt}
                     onChange={(e) => setScenePrompt(e.target.value)}
-                    className="w-full p-2 rounded border resize-none"
+                    className="w-full mt-2 p-2 rounded border resize-none bg-background text-foreground"
                     rows={4}
                   />
                   <div className="flex gap-2 justify-end mt-2">
                     <Button onClick={generateSceneFromPrompt} disabled={isGeneratingScene}>
                       {isGeneratingScene ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
-                      Generate Scene
+                      Generate
                     </Button>
-                    <Button variant="outline" onClick={() => { setScenePrompt(""); }}>
-                      Clear
-                    </Button>
-                  </div>
-                </Card>
-
-                <Card className="p-3">
-                  <div>
-                    <h5 className="font-semibold">Selected Preview</h5>
-                    <div className="mt-2 h-40 flex items-center justify-center bg-muted/10 rounded">
-                      {selectedScene ? (
-                        <img src={mockScenes.find((x) => x.id === selectedScene)!.thumb} alt="scene" className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="text-sm text-muted-foreground">No scene selected</div>
-                      )}
-                    </div>
                   </div>
                 </Card>
               </aside>
@@ -539,114 +428,37 @@ export default function NewShootPageImproved() {
           <section className="space-y-6 animate-in fade-in">
             <div>
               <h2 className="text-2xl font-bold">Lighting & Camera</h2>
-              <p className="text-sm text-muted-foreground max-w-xl">Fine tune lighting and camera to achieve the perfect look.</p>
+              <p className="text-sm text-muted-foreground max-w-xl">Fine tune lighting and camera.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="md:col-span-2 space-y-4">
                 <Card className="p-4">
                   <div className="space-y-3">
-                    <label className="flex flex-col">
-                      <span className="text-sm font-medium">Brightness</span>
-                      <input
-                        type="range"
-                        min={-100}
-                        max={100}
-                        value={brightness}
-                        onChange={(e) => setBrightness(Number(e.target.value))}
-                      />
+                    <label className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">Brightness ({brightness})</span>
+                      <input type="range" min={-100} max={100} value={brightness} onChange={(e) => setBrightness(Number(e.target.value))} />
                     </label>
-
-                    <label className="flex flex-col">
-                      <span className="text-sm font-medium">Temperature (K)</span>
-                      <input
-                        type="range"
-                        min={2500}
-                        max={9000}
-                        value={temperature}
-                        onChange={(e) => setTemperature(Number(e.target.value))}
-                      />
-                    </label>
-
-                    <label className="flex flex-col">
-                      <span className="text-sm font-medium">Shadow Depth</span>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        value={shadowDepth}
-                        onChange={(e) => setShadowDepth(Number(e.target.value))}
-                      />
+                    <label className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">Temperature ({temperature}K)</span>
+                      <input type="range" min={2500} max={9000} value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} />
                     </label>
                   </div>
                 </Card>
 
                 <Card className="p-4">
                   <div className="space-y-3">
-                    <label className="flex flex-col">
-                      <span className="text-sm font-medium">Aperture (f)</span>
-                      <input
-                        type="range"
-                        min={1.4}
-                        max={16}
-                        step={0.1}
-                        value={aperture}
-                        onChange={(e) => setAperture(Number(e.target.value))}
-                      />
-                      <div className="text-xs text-muted-foreground mt-1">Current: f/{aperture.toFixed(1)}</div>
+                    <label className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">Aperture (f/{aperture.toFixed(1)})</span>
+                      <input type="range" min={1.4} max={16} step={0.1} value={aperture} onChange={(e) => setAperture(Number(e.target.value))} />
                     </label>
-
-                    <label className="flex flex-col">
-                      <span className="text-sm font-medium">Focal Length (mm)</span>
-                      <input
-                        type="range"
-                        min={20}
-                        max={200}
-                        value={focalLength}
-                        onChange={(e) => setFocalLength(Number(e.target.value))}
-                      />
-                      <div className="text-xs text-muted-foreground mt-1">Current: {focalLength}mm</div>
+                    <label className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">Focal Length ({focalLength}mm)</span>
+                      <input type="range" min={20} max={200} value={focalLength} onChange={(e) => setFocalLength(Number(e.target.value))} />
                     </label>
                   </div>
                 </Card>
               </div>
-
-              <aside>
-                <Card className="p-3">
-                  <h5 className="font-semibold mb-2">Live Lighting Preview</h5>
-                  <div className="h-56 bg-muted/10 rounded flex items-center justify-center overflow-hidden">
-                    {/* Composite preview: show processed product and avatar + scene */}
-                    <div className="relative w-full h-full">
-                      {selectedScene ? (
-                        <img
-                          src={mockScenes.find((x) => x.id === selectedScene)!.thumb}
-                          alt="bg"
-                          className="absolute inset-0 h-full w-full object-cover filter brightness-[0.85]"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-tr from-[#071029] to-[#0E152E]" />
-                      )}
-
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-40 h-40 bg-white/10 rounded-md flex items-center justify-center">
-                          {productPreviewUrl ? (
-                            <img src={productPreviewUrl} alt="p" className="object-contain h-full w-full p-2" />
-                          ) : (
-                            <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex gap-2">
-                    <Button size="sm" onClick={() => alert("Apply sample studio preset (mock)")}>Apply Preset</Button>
-                    <Button variant="outline" size="sm" onClick={() => { setBrightness(0); setTemperature(5500); setShadowDepth(50); }}>
-                      Reset
-                    </Button>
-                  </div>
-                </Card>
-              </aside>
             </div>
           </section>
         );
@@ -655,35 +467,19 @@ export default function NewShootPageImproved() {
           <section className="space-y-6 animate-in fade-in">
             <div>
               <h2 className="text-2xl font-bold">Generate Shoot</h2>
-              <p className="text-sm text-muted-foreground">Start rendering your configured shoot. You can cancel anytime.</p>
+              <p className="text-sm text-muted-foreground">Start rendering your configured shoot.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="md:col-span-2 space-y-4">
                 <Card className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">Final Preview</h4>
-                      <p className="text-xs text-muted-foreground">This is a quick preview before rendering.</p>
-                    </div>
-                    <div className="text-xs text-muted-foreground">Variants: 6</div>
-                  </div>
-
                   <div className="mt-4 h-80 flex items-center justify-center bg-muted/10 rounded">
-                    {/* show live composite */}
                     {isGenerating ? (
                       <div className="flex flex-col items-center justify-center gap-3">
                         <Loader2 className="h-8 w-8 animate-spin" />
                         <div className="text-sm">Rendering: {generateStage}/{generateStages.length}</div>
-                        <div className="w-48 h-2 bg-muted rounded overflow-hidden">
-                          <div
-                            style={{ width: `${(generateStage / generateStages.length) * 100}%` }}
-                            className="h-full bg-[#FFB400]"
-                          />
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-2">{generateStages[Math.max(0, generateStage - 1)]}</div>
                       </div>
-                    ) : generatedImages.length ? (
+                    ) : generatedImages.length > 0 ? (
                       <div className="grid grid-cols-3 gap-2 w-full p-2">
                         {generatedImages.map((g) => (
                           <div key={g.id} className="rounded overflow-hidden bg-white/5">
@@ -692,22 +488,12 @@ export default function NewShootPageImproved() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-muted-foreground text-sm">No generated images yet. Click Start to render.</div>
+                      <div className="text-muted-foreground text-sm">Click Start to render.</div>
                     )}
-                  </div>
-
-                  <div className="mt-4 flex gap-2">
-                    <Button onClick={startGenerate} disabled={isGenerating}>
-                      {isGenerating ? "Rendering…" : "Start Shoot"}
-                    </Button>
-                    <Button variant="outline" onClick={() => { setGeneratedImages([]); setIsGenerating(false); setGenerateStage(0); }}>
-                      Reset
-                    </Button>
-                    <Button variant="ghost" onClick={() => alert("Save project (mock)")}>Save Project</Button>
                   </div>
                 </Card>
 
-                {generatedImages.length ? (
+                {generatedImages.length > 0 && (
                   <Card className="p-4">
                     <h4 className="font-semibold mb-2">Output Gallery</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -716,34 +502,16 @@ export default function NewShootPageImproved() {
                           <img src={g.url} alt={g.variant} className="object-cover h-44 w-full" />
                           <div className="p-2 flex items-center justify-between">
                             <div className="text-sm">{g.variant}</div>
-                            <div className="flex items-center gap-2">
-                              <Button size="sm" variant="ghost" onClick={() => handleDownload(g)}>
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            <Button size="sm" variant="ghost" onClick={() => handleDownload(g)}>
+                              <Download className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                       ))}
                     </div>
                   </Card>
-                ) : null}
+                )}
               </div>
-
-              <aside>
-                <Card className="p-3">
-                  <h5 className="font-semibold">Render Settings</h5>
-                  <div className="mt-2 space-y-2 text-sm">
-                    <div className="flex justify-between"><span>Variants</span><strong>6</strong></div>
-                    <div className="flex justify-between"><span>Resolution</span><strong>2048 × 2560</strong></div>
-                    <div className="flex justify-between"><span>Commercial License</span><strong>Included</strong></div>
-                  </div>
-
-                  <div className="mt-3 flex gap-2">
-                    <Button size="sm" onClick={() => alert("Export project (mock)")}>Export ZIP</Button>
-                    <Button size="sm" variant="outline" onClick={() => alert("Share link (mock)")}>Share</Button>
-                  </div>
-                </Card>
-              </aside>
             </div>
           </section>
         );
@@ -753,10 +521,9 @@ export default function NewShootPageImproved() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-[#071029] to-[#0E152E] text-white">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[320px,1fr,360px] gap-8">
-        {/* Stepper Sidebar */}
-        <aside className="hidden lg:block">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 py-8">
+        <aside className="hidden lg:block lg:col-span-3">
           <div className="sticky top-24 space-y-4">
             <div>
               <h1 className="text-2xl font-bold">Start New Shoot</h1>
@@ -773,123 +540,40 @@ export default function NewShootPageImproved() {
                     onClick={() => gotoStep(s.id)}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-lg transition text-left",
-                      active ? "bg-white/5 border border-[#FFB400] shadow" : "hover:bg-white/2"
+                      active ? "bg-white/10 border border-primary shadow" : "hover:bg-white/5"
                     )}
                   >
-                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", active ? "bg-[#FFB400] text-[#071029]" : "bg-card")}>
-                      {completed ? <CheckCircle className="h-5 w-5 text-[#28A92B]" /> : s.icon}
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", active ? "bg-primary text-primary-foreground" : "bg-card")}>
+                      {completed ? <CheckCircle className="h-5 w-5 text-green-500" /> : s.icon}
                     </div>
-
                     <div>
                       <div className="font-medium">{s.title}</div>
                       <div className="text-xs text-muted-foreground">Step {s.id}</div>
                     </div>
-
-                    <div className="ml-auto hidden md:block">
-                      <ChevronRight />
-                    </div>
+                    <ChevronRight className="ml-auto h-5 w-5" />
                   </button>
                 );
               })}
             </div>
-
-            <div className="mt-4">
-              <div className="text-xs text-muted-foreground">Quick actions</div>
-              <div className="flex gap-2 mt-2">
-                <Button size="sm" onClick={() => gotoStep(1)}>Upload</Button>
-                <Button size="sm" variant="outline" onClick={() => gotoStep(2)}>Avatar</Button>
-              </div>
-            </div>
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="bg-[rgba(255,255,255,0.02)] p-6 rounded-xl">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold">Step {currentStep} — {steps.find(s => s.id === currentStep)?.title}</h2>
-              <p className="text-sm text-muted-foreground mt-1">Follow the guided steps to configure your shoot.</p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="text-xs text-muted-foreground">Auto-save</div>
-              <div className="w-3 h-3 rounded-full bg-[#28A92B]" aria-hidden />
-            </div>
+        <main className="lg:col-span-9">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <h2 className="text-xl font-semibold">Step {currentStep} — {steps.find(s => s.id === currentStep)?.title}</h2>
           </div>
 
-          <div className="mt-6">{renderStep()}</div>
+          <div className="space-y-8">
+            {renderStep()}
+          </div>
 
-          {/* Mobile stepper / actions */}
-          <div className="mt-6 border-t pt-4 flex items-center justify-between">
-            <div className="hidden sm:flex items-center gap-2">
-              <Button variant="ghost" onClick={() => setCurrentStep((s) => Math.max(1, s - 1))}>Back</Button>
-              <div className="text-sm text-muted-foreground">Step {currentStep} of {steps.length}</div>
-            </div>
-
-            <div className="ml-auto flex items-center gap-2">
-              {currentStep < 5 ? (
-                <Button onClick={() => handleContinue()}>
-                  Continue <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
-              ) : (
-                <Button onClick={() => startGenerate()} disabled={isGenerating}>
-                  {isGenerating ? "Rendering…" : "Start Shoot"}
-                </Button>
-              )}
-            </div>
+          <div className="mt-8 pt-6 border-t border-border flex justify-end">
+            <Button onClick={handleContinue} size="lg" disabled={isGenerating}>
+              {isGenerating ? <Loader2 className="animate-spin" /> : (currentStep < 5 ? "Continue" : "Start Shoot")}
+              {currentStep < 5 && <ChevronRight className="ml-2 h-5 w-5" />}
+            </Button>
           </div>
         </main>
-
-        {/* Preview / Right Panel */}
-        <aside className="hidden xl:block">
-          <div className="sticky top-24 space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold">Live Preview</h3>
-              <p className="text-xs text-muted-foreground">Your current configuration preview</p>
-            </div>
-
-            <Card className="h-[640px] overflow-hidden">
-              <CardContent className="p-0">
-                <div className="relative h-full w-full bg-gradient-to-tr from-[#071029] to-[#0E152E]">
-                  {/* Background */}
-                  {selectedScene ? (
-                    <img
-                      src={mockScenes.find((s) => s.id === selectedScene)!.thumb}
-                      alt="scene"
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#071029] to-[#0E152E]" />
-                  )}
-
-                  {/* Product / avatar composite */}
-                  <div className="absolute inset-0 flex items-center justify-center p-6">
-                    <div className="w-56 h-72 rounded-lg bg-white/5 flex items-center justify-center overflow-hidden">
-                      {processedPreviewUrl ? (
-                        <img src={processedPreviewUrl} alt="processed" className="object-contain h-full w-full p-2" />
-                      ) : productPreviewUrl ? (
-                        <img src={productPreviewUrl} alt="prod" className="object-contain h-full w-full p-2" />
-                      ) : (
-                        <div className="text-muted-foreground text-sm">Upload a product to preview</div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* overlay controls */}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-                    <div className="bg-black/40 rounded px-3 py-1 text-xs">Brightness: {brightness}</div>
-                    <div className="bg-black/40 rounded px-3 py-1 text-xs">Temp: {temperature}K</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex flex-col gap-2">
-              <Button size="sm" onClick={() => alert("Open in studio (mock)")}>Open in AI Shoots Workspace</Button>
-              <Button variant="outline" size="sm" onClick={() => alert("Save config as template (mock)")}>Save Template</Button>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );

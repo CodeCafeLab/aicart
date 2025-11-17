@@ -56,11 +56,11 @@ const toolsNav = [
 
 const managementNav = [
   { href: "/projects", icon: <Folder />, label: "My Projects" },
-  { href: "/history", icon: <History />, label: "History / Versions" },
 ];
 
 const settingsNav = [
   { href: "/settings/brand", icon: <Cog />, label: "Brand Settings" },
+  { href: "/settings/team", icon: <Users />, label: "Team Settings" },
   { href: "/billing", icon: <CreditCard />, label: "Billing & Subscription" },
   { href: "/help", icon: <HelpCircle />, label: "Help Center & FAQ" },
 ];
@@ -68,7 +68,15 @@ const settingsNav = [
 export default function AppSidebar() {
   const pathname = usePathname();
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => {
+    if (href === '/projects') {
+      return pathname.startsWith('/projects');
+    }
+    if (href === '/settings/brand') {
+      return pathname.startsWith('/settings');
+    }
+    return pathname === href;
+  }
 
   return (
     <Sidebar>
@@ -172,5 +180,3 @@ export default function AppSidebar() {
     </Sidebar>
   );
 }
-
-    

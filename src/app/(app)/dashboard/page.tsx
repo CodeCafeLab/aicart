@@ -101,8 +101,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-5 xl:grid-cols-3">
-        <div className="lg:col-span-3 xl:col-span-2">
+      <div className="grid gap-8 lg:grid-cols-5">
+        <div className="lg:col-span-3">
           <h2 className="text-xl font-semibold font-headline mb-4">Recent Projects</h2>
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {recentProjects.map((project, index) => (
@@ -133,7 +133,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 xl:col-span-1">
+        <div className="lg:col-span-2">
           <h2 className="text-xl font-semibold font-headline mb-4">Usage Analytics</h2>
           <Card>
             <CardHeader>
