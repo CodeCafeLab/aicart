@@ -41,23 +41,36 @@ import Image from "next/image";
 import { generateVirtualShoot } from "@/ai/flows/virtual-shoot";
 import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas";
 
-const StudioHeader = ({ onGenerate, isGenerating }: { onGenerate: () => void; isGenerating: boolean }) => (
+const studioTabs = [
+    { icon: <Shirt size={16} />, label: "Apparel" },
+    { icon: <ImageIcon size={16} />, label: "Product" },
+    { icon: <WandSparkles size={16} />, label: "Design" },
+    { icon: <BrainCircuit size={16} />, label: "Re-imagine" },
+];
+
+const StudioHeader = ({
+  onGenerate,
+  isGenerating,
+  activeTab,
+  setActiveTab,
+}: {
+  onGenerate: () => void;
+  isGenerating: boolean;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}) => (
   <header className="flex flex-col md:flex-row items-center justify-between p-4 border-b border-white/10 bg-[#171A24] print:hidden">
     <div className="flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0">
       <h1 className="text-xl font-bold">Virtual Studio</h1>
       <div className="hidden md:flex items-center gap-1 rounded-lg bg-[#0E1019] p-1 border border-white/10">
-        {[
-          { icon: <Shirt size={16} />, label: "Apparel" },
-          { icon: <ImageIcon size={16} />, label: "Product" },
-          { icon: <WandSparkles size={16} />, label: "Design" },
-          { icon: <BrainCircuit size={16} />, label: "Re-imagine" },
-        ].map((item, index) => (
+        {studioTabs.map((item) => (
           <Button
             key={item.label}
-            variant={index === 0 ? "secondary" : "ghost"}
+            variant={activeTab === item.label ? "secondary" : "ghost"}
+            onClick={() => setActiveTab(item.label)}
             className={cn(
               "text-sm h-8 px-3 text-muted-foreground",
-              index === 0 && "bg-white/10 text-white"
+              activeTab === item.label && "bg-white/10 text-white"
             )}
           >
             {item.icon}
@@ -484,6 +497,7 @@ export default function VirtualStudioPage() {
   const [numImages, setNumImages] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [activeStudioTab, setActiveStudioTab] = useState(studioTabs[0].label);
 
   const fileToDataURI = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -526,7 +540,12 @@ export default function VirtualStudioPage() {
 
   return (
     <div className="flex flex-col h-screen bg-[#0E1019] text-white font-body">
-      <StudioHeader onGenerate={handleGenerate} isGenerating={isGenerating} />
+      <StudioHeader 
+        onGenerate={handleGenerate} 
+        isGenerating={isGenerating}
+        activeTab={activeStudioTab}
+        setActiveTab={setActiveStudioTab}
+      />
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr),minmax(0,2fr),minmax(0,1fr)] xl:grid-cols-[380px,1fr,380px] gap-4 p-4 overflow-hidden">
         <InputsPanel
           modelImage={modelImage}
