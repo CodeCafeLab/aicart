@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview Schemas for the virtual shoot generation flow.
  */
