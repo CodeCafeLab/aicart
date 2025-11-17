@@ -245,8 +245,8 @@ export default function NewShootPageImproved() {
                       className={cn(
                         "flex flex-col items-center gap-2 p-3 rounded-xl border transition",
                         active
-                          ? "border-2 border-[#FFB400] bg-[#FFB4000A] shadow-md"
-                          : "border-border hover:border-[#FFB400]/60"
+                          ? "border-2 border-primary bg-primary/10 shadow-md"
+                          : "border-border hover:border-primary/60"
                       )}
                     >
                       <div className="p-2 rounded-md bg-card">
@@ -269,7 +269,7 @@ export default function NewShootPageImproved() {
             <div
               onDrop={onDropFile}
               onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed rounded-xl p-4 bg-transparent transition hover:border-[#FFB400]/60"
+              className="border-2 border-dashed rounded-xl p-4 bg-transparent transition hover:border-primary/60"
             >
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-1">
@@ -320,7 +320,7 @@ export default function NewShootPageImproved() {
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        className="accent-[#FFB400] mr-2"
+                        className="accent-primary mr-2"
                         checked={!!processedPreviewUrl}
                         readOnly
                       />
@@ -360,7 +360,7 @@ export default function NewShootPageImproved() {
                       onClick={() => setSelectedAvatar(a.id)}
                       className={cn(
                         "p-2 rounded-xl border transition flex flex-col items-center gap-2",
-                        active ? "border-2 border-[#28A92B] bg-[#28A92B0A] shadow" : "border-border hover:border-[#FFB400]/60"
+                        active ? "border-2 border-brand-green bg-brand-green/10 shadow" : "border-border hover:border-primary/60"
                       )}
                       aria-pressed={active}
                     >
@@ -385,7 +385,7 @@ export default function NewShootPageImproved() {
                 </button>
               </div>
 
-              <aside className="md:w-80">
+              <aside className="w-full md:w-80">
                 <Card className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -480,7 +480,7 @@ export default function NewShootPageImproved() {
                       onClick={() => setSelectedScene(s.id)}
                       className={cn(
                         "rounded-lg overflow-hidden border transition",
-                        active ? "border-2 border-[#FFB400]" : "border-border hover:scale-[1.02]"
+                        active ? "border-2 border-primary" : "border-border hover:scale-[1.02]"
                       )}
                     >
                       <img src={s.thumb} alt={s.name} className="h-36 w-full object-cover" />
@@ -624,7 +624,7 @@ export default function NewShootPageImproved() {
                           className="absolute inset-0 h-full w-full object-cover filter brightness-[0.85]"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-tr from-[#071029] to-[#0E152E]" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-brand-deep to-surface-dark" />
                       )}
 
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -678,7 +678,7 @@ export default function NewShootPageImproved() {
                         <div className="w-48 h-2 bg-muted rounded overflow-hidden">
                           <div
                             style={{ width: `${(generateStage / generateStages.length) * 100}%` }}
-                            className="h-full bg-[#FFB400]"
+                            className="h-full bg-primary"
                           />
                         </div>
                         <div className="text-xs text-muted-foreground mt-2">{generateStages[Math.max(0, generateStage - 1)]}</div>
@@ -707,7 +707,7 @@ export default function NewShootPageImproved() {
                   </div>
                 </Card>
 
-                {generatedImages.length ? (
+                {generatedImages.length > 0 && (
                   <Card className="p-4">
                     <h4 className="font-semibold mb-2">Output Gallery</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -726,7 +726,7 @@ export default function NewShootPageImproved() {
                       ))}
                     </div>
                   </Card>
-                ) : null}
+                )}
               </div>
 
               <aside>
@@ -753,8 +753,8 @@ export default function NewShootPageImproved() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-[#071029] to-[#0E152E] text-white">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[320px,1fr,360px] gap-8">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-brand-deep to-surface-dark text-white">
+      <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr_360px] gap-8">
         {/* Stepper Sidebar */}
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-4">
@@ -773,11 +773,11 @@ export default function NewShootPageImproved() {
                     onClick={() => gotoStep(s.id)}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-lg transition text-left",
-                      active ? "bg-white/5 border border-[#FFB400] shadow" : "hover:bg-white/2"
+                      active ? "bg-white/5 border border-primary shadow" : "hover:bg-white/5"
                     )}
                   >
-                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", active ? "bg-[#FFB400] text-[#071029]" : "bg-card")}>
-                      {completed ? <CheckCircle className="h-5 w-5 text-[#28A92B]" /> : s.icon}
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", active ? "bg-primary text-brand-deep" : "bg-card")}>
+                      {completed ? <CheckCircle className="h-5 w-5 text-brand-green" /> : s.icon}
                     </div>
 
                     <div>
@@ -804,7 +804,7 @@ export default function NewShootPageImproved() {
         </aside>
 
         {/* Main Content */}
-        <main className="bg-[rgba(255,255,255,0.02)] p-6 rounded-xl">
+        <main className="bg-white/5 p-6 rounded-xl min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold">Step {currentStep} — {steps.find(s => s.id === currentStep)?.title}</h2>
@@ -813,7 +813,7 @@ export default function NewShootPageImproved() {
 
             <div className="flex items-center gap-2">
               <div className="text-xs text-muted-foreground">Auto-save</div>
-              <div className="w-3 h-3 rounded-full bg-[#28A92B]" aria-hidden />
+              <div className="w-3 h-3 rounded-full bg-brand-green" aria-hidden />
             </div>
           </div>
 
@@ -822,17 +822,17 @@ export default function NewShootPageImproved() {
           {/* Mobile stepper / actions */}
           <div className="mt-6 border-t pt-4 flex items-center justify-between">
             <div className="hidden sm:flex items-center gap-2">
-              <Button variant="ghost" onClick={() => setCurrentStep((s) => Math.max(1, s - 1))}>Back</Button>
+              <Button variant="ghost" onClick={() => setCurrentStep((s) => Math.max(1, s - 1))} disabled={currentStep === 1}>Back</Button>
               <div className="text-sm text-muted-foreground">Step {currentStep} of {steps.length}</div>
             </div>
 
             <div className="ml-auto flex items-center gap-2">
               {currentStep < 5 ? (
-                <Button onClick={() => handleContinue()}>
+                <Button onClick={handleContinue}>
                   Continue <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               ) : (
-                <Button onClick={() => startGenerate()} disabled={isGenerating}>
+                <Button onClick={startGenerate} disabled={isGenerating}>
                   {isGenerating ? "Rendering…" : "Start Shoot"}
                 </Button>
               )}
@@ -850,7 +850,7 @@ export default function NewShootPageImproved() {
 
             <Card className="h-[640px] overflow-hidden">
               <CardContent className="p-0">
-                <div className="relative h-full w-full bg-gradient-to-tr from-[#071029] to-[#0E152E]">
+                <div className="relative h-full w-full bg-gradient-to-tr from-brand-deep to-surface-dark">
                   {/* Background */}
                   {selectedScene ? (
                     <img
@@ -859,7 +859,7 @@ export default function NewShootPageImproved() {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#071029] to-[#0E152E]" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-deep to-surface-dark" />
                   )}
 
                   {/* Product / avatar composite */}
