@@ -218,7 +218,7 @@ const Sidebar = React.forwardRef<
         ref={ref}
         className={cn("group peer hidden md:flex flex-col text-sidebar-foreground transition-all duration-300 ease-in-out", 
         "w-[var(--sidebar-width-icon)] data-[state=expanded]:w-[var(--sidebar-width)]",
-        "fixed h-svh z-10",
+        "fixed h-svh z-20",
         side === "left" ? "left-0 border-r" : "right-0 border-l",
         variant === "sidebar" && "bg-sidebar",
         className)}
@@ -244,7 +244,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar, isMobile } = useSidebar()
+  const { toggleSidebar } = useSidebar()
 
   return (
     <Button
@@ -252,7 +252,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-8 w-8", isMobile && "md:hidden", className)}
+      className={cn("h-8 w-8", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

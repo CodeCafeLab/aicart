@@ -11,7 +11,7 @@ export default function AppLayout({
     <SidebarProvider>
       <div className="flex min-h-screen">
         <AppSidebar />
-        <div className="flex-1 flex flex-col md:ml-[var(--sidebar-width-icon)] md:peer-data-[state=expanded]:ml-[var(--sidebar-width)] transition-all duration-300 ease-in-out">
+        <div className="flex-1 flex flex-col md:ml-[var(--sidebar-width-icon)] peer-data-[state=expanded]:md:ml-[var(--sidebar-width)] transition-all duration-300 ease-in-out">
           <AppHeader />
           <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
             {children}

@@ -47,6 +47,7 @@ export default function AppHeader() {
             <DropdownMenuItem asChild><Link href="/login">Log out</Link></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <SidebarTrigger className="hidden md:flex" />
       </div>
     </header>
   );
