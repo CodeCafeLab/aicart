@@ -83,7 +83,7 @@ export default function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Logo />
+        <Logo showText={state === 'expanded'} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
