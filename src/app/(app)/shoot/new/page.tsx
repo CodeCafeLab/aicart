@@ -16,7 +16,6 @@ import {
   Gem,
   Blend,
   Lamp,
-  Home,
   Utensils,
   Computer,
 } from "lucide-react";
@@ -111,29 +110,30 @@ export default function NewShootPage() {
         return <Step1Product />;
       // Future steps will be added here
       default:
-        return <Step1Product />;
+        return <p>Step {currentStep}</p>;
     }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 min-h-full">
-       <aside className="w-full lg:w-64">
-            <div className="sticky top-20">
+    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 min-h-full pb-20 lg:pb-0">
+       <aside className="w-full lg:w-72 xl:w-80">
+            <div className="lg:sticky lg:top-24">
                 <h1 className="font-headline text-2xl font-bold tracking-tight mb-2">Start New Shoot</h1>
                 <p className="text-muted-foreground text-sm mb-6">Create a professional shoot in minutes.</p>
-                <div className="flex lg:flex-col gap-2">
+                <div className="flex justify-between lg:flex-col gap-x-2 sm:gap-x-4 lg:gap-y-2">
                     {steps.map((step) => (
                         <div
                         key={step.id}
                         className={cn(
-                            "flex items-center gap-4 p-3 rounded-lg transition-all w-full",
+                            "flex items-center gap-4 p-2 rounded-lg transition-all w-full lg:w-full",
+                            "flex-1 lg:flex-none justify-center lg:justify-start",
                             currentStep === step.id && "bg-primary/10",
                             currentStep > step.id && "text-muted-foreground"
                         )}
                         >
                         <div
                             className={cn(
-                                "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
+                                "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all shrink-0",
                                 currentStep === step.id && "bg-primary text-primary-foreground border-primary",
                                 currentStep > step.id && "bg-green-500/20 border-green-500/50 text-green-400",
                                 currentStep < step.id && "bg-card border-border"
@@ -141,27 +141,35 @@ export default function NewShootPage() {
                         >
                             {currentStep > step.id ? <CheckCircle className="h-6 w-6" /> : step.icon}
                         </div>
-                        <span className="font-semibold hidden md:inline">{step.title}</span>
+                        <div className="hidden md:block">
+                            <p className="font-semibold">{step.title}</p>
+                            <p className="text-xs text-muted-foreground">Step {step.id}</p>
+                        </div>
                         </div>
                     ))}
                 </div>
             </div>
         </aside>
 
-      <main className="flex-1">
+      <main className="flex-1 min-w-0">
         {renderStepContent()}
       </main>
 
-      <div className="w-full lg:w-1/3">
-        {/* Preview Panel will go here */}
-      </div>
+      <aside className="hidden xl:block w-full lg:w-1/3 max-w-sm">
+        <div className="sticky top-24">
+            <h3 className="font-headline text-xl font-bold mb-4">Live Preview</h3>
+            <Card className="aspect-[3/4] bg-muted/30 flex items-center justify-center">
+                <p className="text-muted-foreground">Preview will appear here</p>
+            </Card>
+        </div>
+      </aside>
 
-       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t lg:hidden">
+       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t lg:hidden z-20">
             <Button className="w-full" size="lg" onClick={() => setCurrentStep(s => Math.min(s + 1, 5))}>
                 Continue <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
        </div>
-       <div className="hidden lg:block sticky bottom-8 ml-auto mt-auto">
+       <div className="hidden lg:flex fixed bottom-8 right-8 z-20">
             <Button size="lg" onClick={() => setCurrentStep(s => Math.min(s + 1, 5))}>
                 Continue <ChevronRight className="ml-2 h-5 w-5" />
             </Button>

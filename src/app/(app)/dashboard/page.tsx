@@ -19,7 +19,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   ChartConfig,
-  ChartStyle
 } from "@/components/ui/chart";
 import { Progress } from "@/components/ui/progress";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -43,13 +42,13 @@ const quickAccessItems = [
     title: "Generate Animation",
     icon: <Film className="h-6 w-6 text-primary" />,
     description: "Animate your products",
-    href: "/animation-studio",
+    href: "/animation",
   },
   {
     title: "Creative Packs",
     icon: <Package className="h-6 w-6 text-primary" />,
     description: "Explore new styles",
-    href: "/creative-packs",
+    href: "/packs",
   },
 ];
 
@@ -80,13 +79,13 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Welcome back! Let's create something amazing today.</p>
         </div>
         <Button size="lg" asChild className="bg-gradient-to-r from-primary to-brand-purple text-primary-foreground shadow-[0_0_20px_theme(colors.primary/50%)] transition-all duration-300 hover:shadow-[0_0_35px_theme(colors.primary/70%)] hover:scale-105">
-          <Link href="/new-shoot">
+          <Link href="/shoot/new">
             <PlusCircle className="mr-2 h-5 w-5" /> Start New Shoot
           </Link>
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {quickAccessItems.map((item) => (
           <Link href={item.href} key={item.title}>
             <Card className="group transition-all hover:border-primary/50 hover:shadow-lg hover:-translate-y-1">
@@ -102,8 +101,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-8 lg:grid-cols-5 xl:grid-cols-3">
+        <div className="lg:col-span-3 xl:col-span-2">
           <h2 className="text-xl font-semibold font-headline mb-4">Recent Projects</h2>
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {recentProjects.map((project, index) => (
@@ -134,7 +133,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div>
+        <div className="lg:col-span-2 xl:col-span-1">
           <h2 className="text-xl font-semibold font-headline mb-4">Usage Analytics</h2>
           <Card>
             <CardHeader>

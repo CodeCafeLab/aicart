@@ -35,31 +35,37 @@ const features = [
     icon: <Users className="w-8 h-8 text-primary" />,
     title: "AI Models / Avatars",
     description: "Create custom AI models or choose from a diverse library of avatars for your shoots.",
+    href: "/avatars",
   },
   {
     icon: <Palette className="w-8 h-8 text-primary" />,
     title: "Scene Stylist",
     description: "Generate unique scenes from text prompts or select from a gallery of mood presets.",
+    href: "/scenes",
   },
   {
     icon: <Lightbulb className="w-8 h-8 text-primary" />,
     title: "Lighting Studio",
     description: "Fine-tune every detail with adjustable studio lighting, shadows, and reflections.",
+    href: "/lighting",
   },
   {
     icon: <Film className="w-8 h-8 text-primary" />,
     title: "Animation Studio",
     description: "Bring your products to life with 360° spins, catwalk loops, and dynamic animations.",
+    href: "/animation",
   },
   {
     icon: <Sparkles className="w-8 h-8 text-primary" />,
     title: "Product Mode",
     description: "Instantly create clean e-commerce shots with automatic background removal.",
+    href: "/product-mode",
   },
   {
     icon: <Camera className="w-8 h-8 text-primary" />,
     title: "AI Art Director",
     description: "Get AI-powered suggestions for concepts, angles, and complete shoot plans.",
+    href: "/art-director",
   },
 ];
 
@@ -162,18 +168,20 @@ export default function LandingPage() {
         <section className="relative py-20 md:py-32">
             <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,180,0,0.2),rgba(255,255,255,0))]"></div>
             <div className="container mx-auto px-4 md:px-6 text-center">
-                <Badge variant="outline" className="mb-4 border-primary/50 text-primary bg-primary/10 py-1 px-3">Now with Animation Studio</Badge>
-                <h1 className="font-headline text-5xl md:text-7xl font-extrabold tracking-tight">
-                StudioForge — AI Studio for <br /> Product & Apparel Photography
+                <Badge variant="outline" className="mb-4 border-primary/50 text-primary bg-primary/10 py-1 px-3">
+                    <Link href="/animation">Now with Animation Studio</Link>
+                </Badge>
+                <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight">
+                StudioForge — AI Studio for <br className="hidden md:block" /> Product & Apparel Photography
                 </h1>
                 <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Generate studio-quality product images & model shoots with AI. No camera, no studio, no limits. Your imagination is your new art director.
                 </p>
-                <div className="mt-8 flex justify-center gap-4">
-                    <Button size="lg" asChild className="bg-gradient-to-r from-primary to-brand-purple text-primary-foreground shadow-[0_0_20px_theme(colors.primary/50%)] transition-all duration-300 hover:shadow-[0_0_35px_theme(colors.primary/70%)] hover:scale-105">
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Button size="lg" asChild className="w-full sm:w-auto bg-gradient-to-r from-primary to-brand-purple text-primary-foreground shadow-[0_0_20px_theme(colors.primary/50%)] transition-all duration-300 hover:shadow-[0_0_35px_theme(colors.primary/70%)] hover:scale-105">
                         <Link href="/dashboard">Start New Shoot <ArrowRight className="ml-2 h-5 w-5" /></Link>
                     </Button>
-                    <Button size="lg" variant="outline" asChild>
+                    <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
                         <Link href="#features">Learn More</Link>
                     </Button>
                 </div>
@@ -207,15 +215,17 @@ export default function LandingPage() {
             </div>
             <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {features.map((feature) => (
-                <Card key={feature.title} className="bg-card border-border hover:border-primary/50 transition-colors">
-                    <CardHeader className="flex flex-row items-center gap-4">
-                        {feature.icon}
-                        <CardTitle className="font-headline text-xl">{feature.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">{feature.description}</p>
-                    </CardContent>
-                </Card>
+                <Link href={feature.href} key={feature.title}>
+                  <Card className="bg-card border-border hover:border-primary/50 transition-colors h-full">
+                      <CardHeader className="flex flex-row items-center gap-4">
+                          {feature.icon}
+                          <CardTitle className="font-headline text-xl">{feature.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <p className="text-muted-foreground">{feature.description}</p>
+                      </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
@@ -239,7 +249,7 @@ export default function LandingPage() {
                 >
                     <CarouselContent>
                         {PlaceHolderImages.filter(p => p.id.startsWith('carousel')).map((image, index) => (
-                            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                            <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/3">
                                 <div className="p-1">
                                     <Card className="overflow-hidden">
                                         <CardContent className="p-0">
@@ -257,8 +267,8 @@ export default function LandingPage() {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="ml-12" />
-                    <CarouselNext className="mr-12" />
+                    <CarouselPrevious className="ml-12 hidden sm:flex" />
+                    <CarouselNext className="mr-12 hidden sm:flex" />
                 </Carousel>
             </div>
         </section>
@@ -272,7 +282,7 @@ export default function LandingPage() {
                         Start for free and scale as you grow. Cancel anytime.
                     </p>
                 </div>
-                <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
                     {pricingTiers.map(tier => (
                         <Card key={tier.name} className={`flex flex-col ${tier.popular ? 'border-2 border-primary shadow-2xl shadow-primary/20' : ''}`}>
                             {tier.popular && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most Popular</Badge>}
@@ -293,7 +303,9 @@ export default function LandingPage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Button className={`w-full mt-8 ${tier.popular ? 'bg-gradient-to-r from-primary to-brand-purple text-primary-foreground shadow-[0_0_20px_theme(colors.primary/50%)]' : ''}`} variant={tier.popular ? 'default' : 'outline'}>{tier.cta}</Button>
+                                <Button asChild className={`w-full mt-8 ${tier.popular ? 'bg-gradient-to-r from-primary to-brand-purple text-primary-foreground shadow-[0_0_20px_theme(colors.primary/50%)]' : ''}`} variant={tier.popular ? 'default' : 'outline'}>
+                                  <Link href="/signup">{tier.cta}</Link>
+                                </Button>
                             </CardContent>
                         </Card>
                     ))}
@@ -338,7 +350,7 @@ export default function LandingPage() {
                 <Accordion type="single" collapsible className="w-full mt-12">
                     {faqItems.map(item => (
                         <AccordionItem value={item.question} key={item.question}>
-                            <AccordionTrigger className="text-lg font-semibold">{item.question}</AccordionTrigger>
+                            <AccordionTrigger className="text-lg font-semibold text-left">{item.question}</AccordionTrigger>
                             <AccordionContent className="text-muted-foreground text-base">
                                 {item.answer}
                             </AccordionContent>
@@ -364,5 +376,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
