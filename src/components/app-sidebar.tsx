@@ -11,7 +11,8 @@ import {
   SidebarMenuButton,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarSeparator
+  SidebarSeparator,
+  useSidebar
 } from "@/components/ui/sidebar";
 import Logo from "@/components/logo";
 import {
@@ -67,12 +68,13 @@ const settingsNav = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { state } = useSidebar();
 
   const isActive = (href: string) => {
     if (href === '/projects') {
       return pathname.startsWith('/projects');
     }
-    if (href === '/settings/brand') {
+    if (href === '/settings/brand' || href === '/settings/team') {
       return pathname.startsWith('/settings');
     }
     return pathname === href;
@@ -83,7 +85,7 @@ export default function AppSidebar() {
       <SidebarHeader>
         <Logo />
       </SidebarHeader>
-      <SidebarContent className="p-2">
+      <SidebarContent>
         <SidebarGroup>
             <SidebarMenu>
                 {mainNav.map((item) => (
@@ -91,7 +93,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
                         <Link href={item.href}>
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span className={state === 'collapsed' ? 'hidden' : 'inline'}>{item.label}</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -109,7 +111,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
                         <Link href={item.href}>
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span className={state === 'collapsed' ? 'hidden' : 'inline'}>{item.label}</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -127,7 +129,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
                         <Link href={item.href}>
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span className={state === 'collapsed' ? 'hidden' : 'inline'}>{item.label}</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -145,7 +147,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
                         <Link href={item.href}>
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span className={state === 'collapsed' ? 'hidden' : 'inline'}>{item.label}</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -153,7 +155,7 @@ export default function AppSidebar() {
             </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-2">
+      <SidebarFooter>
          <SidebarGroup>
             <SidebarMenu>
                 {settingsNav.map((item) => (
@@ -161,7 +163,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
                         <Link href={item.href}>
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span className={state === 'collapsed' ? 'hidden' : 'inline'}>{item.label}</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -170,7 +172,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton asChild tooltip="Log Out">
                         <Link href="/login">
                         <LogOut />
-                        <span>Log Out</span>
+                        <span className={state === 'collapsed' ? 'hidden' : 'inline'}>Log Out</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
