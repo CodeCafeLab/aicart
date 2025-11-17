@@ -113,7 +113,7 @@ const ImageUpload = ({
     <div
       {...getRootProps()}
       className={cn(
-        "border-2 border-dashed border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center flex-grow bg-[#0E1019] cursor-pointer transition-colors",
+        "border-2 border-dashed border-white/10 rounded-lg p-6 h-48 flex flex-col items-center justify-center text-center flex-grow bg-[#0E1019] cursor-pointer transition-colors",
         isDragActive && "border-purple-500 bg-purple-500/10"
       )}
     >
@@ -123,8 +123,8 @@ const ImageUpload = ({
           <Image
             src={uploadedImage}
             alt="Uploaded asset"
-            layout="fill"
-            objectFit="contain"
+            fill
+            style={{objectFit: "contain"}}
             className="rounded-md"
           />
           <Button
@@ -203,7 +203,7 @@ const InputsPanel = ({
       </div>
 
       {inputType === "Model" && (
-        <>
+        <div className="flex flex-col gap-4 flex-grow">
           <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
             <Button onClick={() => setModelInputType('Upload')} variant={modelInputType === 'Upload' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs', modelInputType === 'Upload' && 'bg-white/5 text-white')}>
               <Upload className="mr-1.5" size={14} />
@@ -223,7 +223,7 @@ const InputsPanel = ({
               onDrop={onModelDrop}
               title="Upload Your Model"
               description="Drag 'n' drop or click to browse"
-              icon={<User className="h-10 w-10 text-muted-foreground mb-4" />}
+              icon={<User className="h-10 w-10 text-muted-foreground" />}
               uploadedImage={modelImage ? URL.createObjectURL(modelImage) : null}
               onRemove={() => setModelImage(null)}
             />
@@ -233,21 +233,32 @@ const InputsPanel = ({
               value={modelPrompt}
               onChange={(e) => setModelPrompt(e.target.value)}
               placeholder="e.g., A confident woman with curly hair, smiling, wearing a simple t-shirt..."
-              className="w-full h-36 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+              className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
             />
           )}
-        </>
+           {modelInputType === 'Models' && (
+             <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Coming Soon</div>
+          )}
+        </div>
       )}
 
       {inputType === "Apparel" && (
-        <ImageUpload
-          onDrop={onApparelDrop}
-          title="Upload Your Apparel"
-          description="Drag 'n' drop or click to browse"
-          icon={<Shirt className="h-10 w-10 text-muted-foreground mb-4" />}
-          uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
-          onRemove={() => setApparelImage(null)}
-        />
+         <div className="flex flex-col gap-4 flex-grow">
+            <ImageUpload
+            onDrop={onApparelDrop}
+            title="Upload Your Apparel"
+            description="Drag 'n' drop or click to browse"
+            icon={<Shirt className="h-10 w-10 text-muted-foreground" />}
+            uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
+            onRemove={() => setApparelImage(null)}
+            />
+            <textarea
+                value={apparelPrompt}
+                onChange={(e) => setApparelPrompt(e.target.value)}
+                placeholder="Describe the apparel if no image is provided (e.g., a red floral summer dress)."
+                className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+            />
+        </div>
       )}
     </aside>
   );
@@ -270,8 +281,8 @@ const CanvasPanel = ({ generatedImages, isGenerating }: { generatedImages: strin
             <Image
               src={imgSrc}
               alt={`Generated image ${index + 1}`}
-              layout="fill"
-              objectFit="cover"
+              fill
+              style={{objectFit: "cover"}}
             />
           </div>
         ))}
@@ -291,21 +302,19 @@ const CanvasPanel = ({ generatedImages, isGenerating }: { generatedImages: strin
 );
 
 const SettingsPanel = ({
-  aspectRatio,
-  setAspectRatio,
   numImages,
   setNumImages,
   setScenePrompt,
   scenePrompt,
 }: {
-  aspectRatio: string;
-  setAspectRatio: (ratio: string) => void;
   numImages: number;
   setNumImages: (num: number) => void;
   setScenePrompt: (prompt: string) => void;
   scenePrompt: string;
 }) => {
   const [ecommercePack, setEcommercePack] = useState("Off");
+  const [aspectRatio, setAspectRatio] = useState("Portrait");
+
 
   return (
     <aside className="bg-[#171A24] rounded-lg p-4 flex flex-col gap-4 overflow-y-auto print:hidden">
@@ -472,7 +481,6 @@ export default function VirtualStudioPage() {
   const [modelPrompt, setModelPrompt] = useState("");
   const [apparelPrompt, setApparelPrompt] = useState("");
   const [scenePrompt, setScenePrompt] = useState("");
-  const [aspectRatio, setAspectRatio] = useState("Portrait");
   const [numImages, setNumImages] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
@@ -487,22 +495,23 @@ export default function VirtualStudioPage() {
   };
 
   const handleGenerate = async () => {
+    if (!modelImage && !modelPrompt) {
+      alert("Please provide either a model image or a model prompt.");
+      return;
+    }
+
     setIsGenerating(true);
     setGeneratedImages([]);
     try {
       const input: GenerateVirtualShootInput = {
-        modelPrompt,
-        apparelPrompt,
-        scenePrompt,
         numImages,
       };
 
-      if (modelImage) {
-        input.modelImage = await fileToDataURI(modelImage);
-      }
-      if (apparelImage) {
-        input.apparelImage = await fileToDataURI(apparelImage);
-      }
+      if (modelImage) input.modelImage = await fileToDataURI(modelImage);
+      if (apparelImage) input.apparelImage = await fileToDataURI(apparelImage);
+      if (modelPrompt) input.modelPrompt = modelPrompt;
+      if (apparelPrompt) input.apparelPrompt = apparelPrompt;
+      if (scenePrompt) input.scenePrompt = scenePrompt;
       
       const result = await generateVirtualShoot(input);
       setGeneratedImages(result.imageUrls);
@@ -518,7 +527,7 @@ export default function VirtualStudioPage() {
   return (
     <div className="flex flex-col h-screen bg-[#0E1019] text-white font-body">
       <StudioHeader onGenerate={handleGenerate} isGenerating={isGenerating} />
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[380px,1fr,380px] gap-4 p-4 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr),minmax(0,2fr),minmax(0,1fr)] xl:grid-cols-[380px,1fr,380px] gap-4 p-4 overflow-hidden">
         <InputsPanel
           modelImage={modelImage}
           apparelImage={apparelImage}
@@ -531,8 +540,6 @@ export default function VirtualStudioPage() {
         />
         <CanvasPanel generatedImages={generatedImages} isGenerating={isGenerating} />
         <SettingsPanel
-          aspectRatio={aspectRatio}
-          setAspectRatio={setAspectRatio}
           numImages={numImages}
           setNumImages={setNumImages}
           scenePrompt={scenePrompt}
