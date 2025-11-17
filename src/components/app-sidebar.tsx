@@ -36,22 +36,22 @@ import {
 
 const mainNav = [
   { href: "/dashboard", icon: <LayoutDashboard />, label: "Dashboard" },
-  { href: "/new-shoot", icon: <PlusCircle />, label: "Start New Shoot" },
+  { href: "/shoot/new", icon: <PlusCircle />, label: "Start New Shoot" },
 ];
 
 const workspaceNav = [
-  { href: "/ai-shoots", icon: <Camera />, label: "AI Shoots" },
+  { href: "/shoots", icon: <Camera />, label: "AI Shoots" },
   { href: "/product-mode", icon: <ShoppingBag />, label: "Product Mode" },
   { href: "/avatars", icon: <Users />, label: "AI Models / Avatars" },
-  { href: "/creative-packs", icon: <Package />, label: "Creative Packs" },
+  { href: "/packs", icon: <Package />, label: "Creative Packs" },
 ];
 
 const toolsNav = [
-  { href: "/scene-stylist", icon: <Palette />, label: "Scene Stylist" },
-  { href: "/backgrounds", icon: <Theater />, label: "Backgrounds & Props" },
-  { href: "/lighting-studio", icon: <Lightbulb />, label: "Lighting Studio" },
-  { href: "/animation-studio", icon: <Film />, label: "Animation Studio" },
-  { href: "/ai-art-director", icon: <Wand2 />, label: "AI Art Director" },
+  { href: "/scenes", icon: <Palette />, label: "Scene Stylist" },
+  { href: "/props", icon: <Theater />, label: "Backgrounds & Props" },
+  { href: "/lighting", icon: <Lightbulb />, label: "Lighting Studio" },
+  { href: "/animation", icon: <Film />, label: "Animation Studio" },
+  { href: "/art-director", icon: <Wand2 />, label: "AI Art Director" },
 ];
 
 const managementNav = [
@@ -60,7 +60,7 @@ const managementNav = [
 ];
 
 const settingsNav = [
-  { href: "/settings", icon: <Cog />, label: "Brand Settings" },
+  { href: "/settings/brand", icon: <Cog />, label: "Brand Settings" },
   { href: "/billing", icon: <CreditCard />, label: "Billing & Subscription" },
   { href: "/help", icon: <HelpCircle />, label: "Help Center & FAQ" },
 ];
@@ -80,14 +80,12 @@ export default function AppSidebar() {
             <SidebarMenu>
                 {mainNav.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                        <div>
+                        <Link href={item.href}>
                         {item.icon}
                         <span>{item.label}</span>
-                        </div>
+                        </Link>
                     </SidebarMenuButton>
-                    </Link>
                 </SidebarMenuItem>
                 ))}
             </SidebarMenu>
@@ -100,14 +98,12 @@ export default function AppSidebar() {
             <SidebarMenu>
                 {workspaceNav.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                        <div>
+                        <Link href={item.href}>
                         {item.icon}
                         <span>{item.label}</span>
-                        </div>
+                        </Link>
                     </SidebarMenuButton>
-                    </Link>
                 </SidebarMenuItem>
                 ))}
             </SidebarMenu>
@@ -120,14 +116,12 @@ export default function AppSidebar() {
             <SidebarMenu>
                 {toolsNav.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                        <div>
+                        <Link href={item.href}>
                         {item.icon}
                         <span>{item.label}</span>
-                        </div>
+                        </Link>
                     </SidebarMenuButton>
-                    </Link>
                 </SidebarMenuItem>
                 ))}
             </SidebarMenu>
@@ -140,14 +134,12 @@ export default function AppSidebar() {
             <SidebarMenu>
                 {managementNav.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                        <div>
+                        <Link href={item.href}>
                         {item.icon}
                         <span>{item.label}</span>
-                        </div>
+                        </Link>
                     </SidebarMenuButton>
-                    </Link>
                 </SidebarMenuItem>
                 ))}
             </SidebarMenu>
@@ -158,25 +150,21 @@ export default function AppSidebar() {
             <SidebarMenu>
                 {settingsNav.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                        <div>
+                        <Link href={item.href}>
                         {item.icon}
                         <span>{item.label}</span>
-                        </div>
+                        </Link>
                     </SidebarMenuButton>
-                    </Link>
                 </SidebarMenuItem>
                 ))}
                 <SidebarMenuItem>
-                    <Link href="/" passHref>
-                        <SidebarMenuButton asChild tooltip="Log Out">
-                            <div>
-                            <LogOut />
-                            <span>Log Out</span>
-                            </div>
-                        </SidebarMenuButton>
-                    </Link>
+                    <SidebarMenuButton asChild tooltip="Log Out">
+                        <Link href="/login">
+                        <LogOut />
+                        <span>Log Out</span>
+                        </Link>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
          </SidebarGroup>
@@ -184,3 +172,5 @@ export default function AppSidebar() {
     </Sidebar>
   );
 }
+
+    

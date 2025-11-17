@@ -148,10 +148,10 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
-                <Link href="/dashboard">Login</Link>
+                <Link href="/login">Login</Link>
             </Button>
             <Button asChild className="bg-gradient-to-r from-primary to-brand-purple text-primary-foreground shadow-[0_0_20px_theme(colors.primary/50%)] transition-shadow hover:shadow-[0_0_30px_theme(colors.primary/70%)]">
-                <Link href="/dashboard">Sign Up Free</Link>
+                <Link href="/signup">Sign Up Free</Link>
             </Button>
           </div>
         </div>
@@ -364,3 +364,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
