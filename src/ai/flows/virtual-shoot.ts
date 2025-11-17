@@ -4,31 +4,16 @@
  * @fileOverview A virtual shoot generation flow that combines models, apparel, and scenes.
  *
  * - generateVirtualShoot - A function that handles the virtual shoot generation process.
- * - GenerateVirtualShootInput - The input type for the generateVirtualShoot function.
- * - GenerateVirtualShootOutput - The return type for the generateVirtualShoot function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import {
+    GenerateVirtualShootInputSchema,
+    GenerateVirtualShootOutputSchema,
+    type GenerateVirtualShootInput,
+    type GenerateVirtualShootOutput,
+} from './virtual-shoot-schemas';
 
-export const GenerateVirtualShootInputSchema = z.object({
-  modelImage: z.string().optional().describe(
-    "A photo of a model, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-  ),
-  modelPrompt: z.string().optional().describe('A text description of the desired model.'),
-  apparelImage: z.string().optional().describe(
-    "A photo of an apparel item, as a data URI that must include a MIME type and use Base64 encoding."
-  ),
-  apparelPrompt: z.string().optional().describe('A text description of the apparel.'),
-  scenePrompt: z.string().optional().describe('A text description of the desired background scene and style.'),
-  numImages: z.number().default(1).describe('The number of images to generate.'),
-});
-export type GenerateVirtualShootInput = z.infer<typeof GenerateVirtualShootInputSchema>;
-
-export const GenerateVirtualShootOutputSchema = z.object({
-  imageUrls: z.array(z.string()).describe('An array of URLs for the generated images, returned as data URIs.'),
-});
-export type GenerateVirtualShootOutput = z.infer<typeof GenerateVirtualShootOutputSchema>;
 
 export async function generateVirtualShoot(input: GenerateVirtualShootInput): Promise<GenerateVirtualShootOutput> {
   return virtualShootFlow(input);

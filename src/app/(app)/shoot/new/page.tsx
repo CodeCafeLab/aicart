@@ -38,7 +38,8 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { generateVirtualShoot, GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot";
+import { generateVirtualShoot } from "@/ai/flows/virtual-shoot";
+import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas";
 
 const StudioHeader = ({ onGenerate, isGenerating }: { onGenerate: () => void; isGenerating: boolean }) => (
   <header className="flex flex-col md:flex-row items-center justify-between p-4 border-b border-white/10 bg-[#171A24] print:hidden">
