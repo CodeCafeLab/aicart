@@ -146,6 +146,7 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
+            data-sidebar-state={state}
             {...props}
           >
             {children}
@@ -216,7 +217,7 @@ const Sidebar = React.forwardRef<
     return (
       <aside
         ref={ref}
-        className={cn("group peer hidden md:flex flex-col text-sidebar-foreground transition-all duration-300 ease-in-out", 
+        className={cn("group hidden md:flex flex-col text-sidebar-foreground transition-all duration-300 ease-in-out", 
         "w-[var(--sidebar-width-icon)] data-[state=expanded]:w-[var(--sidebar-width)]",
         "fixed h-svh z-20",
         side === "left" ? "left-0 border-r" : "right-0 border-l",
@@ -304,7 +305,8 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        "group-data-[sidebar-state=expanded]/sidebar-wrapper:md:ml-[var(--sidebar-width)]",
+        "group-data-[sidebar-state=collapsed]/sidebar-wrapper:md:ml-[var(--sidebar-width-icon)]",
         className
       )}
       {...props}
