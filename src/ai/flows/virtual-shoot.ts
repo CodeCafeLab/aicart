@@ -63,7 +63,7 @@ const virtualShootFlow = ai.defineFlow(
     for (let i = 0; i < numImages; i++) {
         const { media } = await ai.generate({
           prompt: promptParts,
-          model: 'googleai/gemini-1.5-flash-latest', // Using a powerful multi-modal model
+          model: 'googleai/gemini-1.5-flash-preview-0514', // Using a powerful multi-modal model
            config: {
               responseModalities: ['TEXT', 'IMAGE'],
             },
