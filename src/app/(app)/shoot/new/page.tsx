@@ -46,26 +46,6 @@ export default function NewShootPage() {
   const Step1Product = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-3xl font-bold font-headline">Upload Your Product</h2>
-        <p className="text-muted-foreground mt-2 max-w-2xl">
-          StudioForge will auto-remove backgrounds & prepare your product for the shoot.
-        </p>
-      </div>
-
-      <Card className="border-2 border-dashed border-border hover:border-primary/50 hover:bg-accent/20 transition-all duration-300 group bg-transparent">
-        <CardContent className="p-6 text-center flex flex-col items-center justify-center h-64">
-          <UploadCloud className="h-16 w-16 text-muted-foreground group-hover:text-primary transition-colors mb-4" />
-          <Button variant="outline" className="mb-2">
-            Upload Product Image
-          </Button>
-          <p className="text-sm text-muted-foreground">or drag and drop</p>
-          <p className="text-xs text-muted-foreground mt-2">
-            Supports PNG, JPG up to 50MB
-          </p>
-        </CardContent>
-      </Card>
-
-      <div>
         <h3 className="text-lg font-semibold mb-4">Select Product Type (Optional)</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
           {productTypes.map((type) => (
@@ -85,6 +65,27 @@ export default function NewShootPage() {
           ))}
         </div>
       </div>
+
+      <div>
+        <h2 className="text-3xl font-bold font-headline">Upload Your Product</h2>
+        <p className="text-muted-foreground mt-2 max-w-2xl">
+          StudioForge will auto-remove backgrounds & prepare your product for the shoot.
+        </p>
+      </div>
+
+      <Card className="border-2 border-dashed border-border hover:border-primary/50 hover:bg-accent/20 transition-all duration-300 group bg-transparent">
+        <CardContent className="p-6 text-center flex flex-col items-center justify-center h-64">
+          <UploadCloud className="h-16 w-16 text-muted-foreground group-hover:text-primary transition-colors mb-4" />
+          <Button variant="outline" className="mb-2">
+            Upload Product Image
+          </Button>
+          <p className="text-sm text-muted-foreground">or drag and drop</p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Supports PNG, JPG up to 50MB
+          </p>
+        </CardContent>
+      </Card>
+
     </div>
   );
 
