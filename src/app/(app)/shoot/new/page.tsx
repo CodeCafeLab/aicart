@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -26,6 +27,7 @@ import {
   Image as ImageIcon,
   Loader2,
   X,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +45,7 @@ import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas
 
 const studioTabs = [
     { icon: <Shirt size={16} />, label: "Apparel" },
-    { icon: <ImageIcon size={16} />, label: "Product" },
+    { icon: <Package size={16} />, label: "Product" },
     { icon: <WandSparkles size={16} />, label: "Design" },
     { icon: <BrainCircuit size={16} />, label: "Re-imagine" },
 ];
@@ -172,6 +174,7 @@ const InputsPanel = ({
   apparelImage,
   modelPrompt,
   apparelPrompt,
+  activeTab,
 }: {
   setModelImage: (file: File | null) => void;
   setApparelImage: (file: File | null) => void;
@@ -181,6 +184,7 @@ const InputsPanel = ({
   apparelImage: File | null;
   modelPrompt: string;
   apparelPrompt: string;
+  activeTab: string;
 }) => {
   const [inputType, setInputType] = useState("Model");
   const [modelInputType, setModelInputType] = useState("Upload");
@@ -193,86 +197,144 @@ const InputsPanel = ({
     setApparelImage(acceptedFiles[0]);
   }, [setApparelImage]);
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case "Apparel":
+        return (
+          <>
+            <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
+              <Button
+                onClick={() => setInputType("Model")}
+                variant={inputType === "Model" ? "secondary" : "ghost"}
+                className={cn("flex-1", inputType === "Model" && "bg-white/10 text-white")}
+              >
+                <Users className="mr-2" size={16} />
+                Model
+              </Button>
+              <Button
+                onClick={() => setInputType("Apparel")}
+                variant={inputType === "Apparel" ? "secondary" : "ghost"}
+                className={cn("flex-1 text-muted-foreground", inputType === "Apparel" && "bg-white/10 text-white")}
+              >
+                <Shirt className="mr-2" size={16} />
+                Apparel
+              </Button>
+            </div>
+
+            {inputType === "Model" && (
+              <div className="flex flex-col gap-4 flex-grow">
+                <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
+                  <Button onClick={() => setModelInputType('Upload')} variant={modelInputType === 'Upload' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs', modelInputType === 'Upload' && 'bg-white/5 text-white')}>
+                    <Upload className="mr-1.5" size={14} />
+                    Upload
+                  </Button>
+                  <Button onClick={() => setModelInputType('Prompt')} variant={modelInputType === 'Prompt' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs text-muted-foreground', modelInputType === 'Prompt' && 'bg-white/5 text-white')}>
+                    <MessageSquare className="mr-1.5" size={14} />
+                    Prompt
+                  </Button>
+                  <Button onClick={() => setModelInputType('Models')} variant={modelInputType === 'Models' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs text-muted-foreground', modelInputType === 'Models' && 'bg-white/5 text-white')}>
+                    <Library className="mr-1.5" size={14} />
+                    Models
+                  </Button>
+                </div>
+                {modelInputType === 'Upload' && (
+                  <ImageUpload
+                    onDrop={onModelDrop}
+                    title="Upload Your Model"
+                    description="Drag 'n' drop or click to browse"
+                    icon={<User className="h-10 w-10 text-muted-foreground" />}
+                    uploadedImage={modelImage ? URL.createObjectURL(modelImage) : null}
+                    onRemove={() => setModelImage(null)}
+                  />
+                )}
+                {modelInputType === 'Prompt' && (
+                  <textarea
+                    value={modelPrompt}
+                    onChange={(e) => setModelPrompt(e.target.value)}
+                    placeholder="e.g., A confident woman with curly hair, smiling, wearing a simple t-shirt..."
+                    className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                  />
+                )}
+                 {modelInputType === 'Models' && (
+                   <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Coming Soon</div>
+                )}
+              </div>
+            )}
+
+            {inputType === "Apparel" && (
+               <div className="flex flex-col gap-4 flex-grow">
+                  <ImageUpload
+                  onDrop={onApparelDrop}
+                  title="Upload Your Apparel"
+                  description="Drag 'n' drop or click to browse"
+                  icon={<Shirt className="h-10 w-10 text-muted-foreground" />}
+                  uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
+                  onRemove={() => setApparelImage(null)}
+                  />
+                  <textarea
+                      value={apparelPrompt}
+                      onChange={(e) => setApparelPrompt(e.target.value)}
+                      placeholder="Describe the apparel if no image is provided (e.g., a red floral summer dress)."
+                      className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                  />
+              </div>
+            )}
+          </>
+        );
+      case "Product":
+        return (
+          <div className="flex flex-col gap-4 flex-grow">
+            <ImageUpload
+              onDrop={onApparelDrop} // Re-using apparel drop for product
+              title="Upload Product Image"
+              description="PNG with transparent background recommended"
+              icon={<Package className="h-10 w-10 text-muted-foreground" />}
+              uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
+              onRemove={() => setApparelImage(null)}
+            />
+             <textarea
+                value={apparelPrompt}
+                onChange={(e) => setApparelPrompt(e.target.value)}
+                placeholder="Describe the product and desired shot type. e.g., 'A sleek black watch on a marble surface'."
+                className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+            />
+          </div>
+        );
+      case "Design":
+        return (
+          <div className="flex flex-col gap-4 flex-grow">
+            <textarea
+              placeholder="Describe your design concept. The AI will generate a moodboard and style guide... e.g., 'A 90s retro-futurism theme for a new sneaker launch'."
+              className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+            />
+          </div>
+        );
+      case "Re-imagine":
+        return (
+          <div className="flex flex-col gap-4 flex-grow">
+            <ImageUpload
+              onDrop={onApparelDrop}
+              title="Upload Image to Re-imagine"
+              description="Upload any image to transform it"
+              icon={<BrainCircuit className="h-10 w-10 text-muted-foreground" />}
+              uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
+              onRemove={() => setApparelImage(null)}
+            />
+             <textarea
+                placeholder="Describe how you want to transform the image. e.g., 'Change the background to a futuristic neon city'."
+                className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <aside className="bg-[#171A24] rounded-lg p-4 flex flex-col gap-4 overflow-y-auto print:hidden">
       <h2 className="text-lg font-semibold">Inputs</h2>
-      <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
-        <Button
-          onClick={() => setInputType("Model")}
-          variant={inputType === "Model" ? "secondary" : "ghost"}
-          className={cn("flex-1", inputType === "Model" && "bg-white/10 text-white")}
-        >
-          <Users className="mr-2" size={16} />
-          Model
-        </Button>
-        <Button
-          onClick={() => setInputType("Apparel")}
-          variant={inputType === "Apparel" ? "secondary" : "ghost"}
-          className={cn("flex-1 text-muted-foreground", inputType === "Apparel" && "bg-white/10 text-white")}
-        >
-          <Shirt className="mr-2" size={16} />
-          Apparel
-        </Button>
-      </div>
-
-      {inputType === "Model" && (
-        <div className="flex flex-col gap-4 flex-grow">
-          <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
-            <Button onClick={() => setModelInputType('Upload')} variant={modelInputType === 'Upload' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs', modelInputType === 'Upload' && 'bg-white/5 text-white')}>
-              <Upload className="mr-1.5" size={14} />
-              Upload
-            </Button>
-            <Button onClick={() => setModelInputType('Prompt')} variant={modelInputType === 'Prompt' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs text-muted-foreground', modelInputType === 'Prompt' && 'bg-white/5 text-white')}>
-              <MessageSquare className="mr-1.5" size={14} />
-              Prompt
-            </Button>
-            <Button onClick={() => setModelInputType('Models')} variant={modelInputType === 'Models' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs text-muted-foreground', modelInputType === 'Models' && 'bg-white/5 text-white')}>
-              <Library className="mr-1.5" size={14} />
-              Models
-            </Button>
-          </div>
-          {modelInputType === 'Upload' && (
-            <ImageUpload
-              onDrop={onModelDrop}
-              title="Upload Your Model"
-              description="Drag 'n' drop or click to browse"
-              icon={<User className="h-10 w-10 text-muted-foreground" />}
-              uploadedImage={modelImage ? URL.createObjectURL(modelImage) : null}
-              onRemove={() => setModelImage(null)}
-            />
-          )}
-          {modelInputType === 'Prompt' && (
-            <textarea
-              value={modelPrompt}
-              onChange={(e) => setModelPrompt(e.target.value)}
-              placeholder="e.g., A confident woman with curly hair, smiling, wearing a simple t-shirt..."
-              className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
-            />
-          )}
-           {modelInputType === 'Models' && (
-             <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Coming Soon</div>
-          )}
-        </div>
-      )}
-
-      {inputType === "Apparel" && (
-         <div className="flex flex-col gap-4 flex-grow">
-            <ImageUpload
-            onDrop={onApparelDrop}
-            title="Upload Your Apparel"
-            description="Drag 'n' drop or click to browse"
-            icon={<Shirt className="h-10 w-10 text-muted-foreground" />}
-            uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
-            onRemove={() => setApparelImage(null)}
-            />
-            <textarea
-                value={apparelPrompt}
-                onChange={(e) => setApparelPrompt(e.target.value)}
-                placeholder="Describe the apparel if no image is provided (e.g., a red floral summer dress)."
-                className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
-            />
-        </div>
-      )}
+      {renderContent()}
     </aside>
   );
 };
@@ -509,8 +571,12 @@ export default function VirtualStudioPage() {
   };
 
   const handleGenerate = async () => {
-    if (!modelImage && !modelPrompt) {
+    if (!modelImage && !modelPrompt && activeStudioTab === 'Apparel') {
       alert("Please provide either a model image or a model prompt.");
+      return;
+    }
+     if (!apparelImage && !apparelPrompt && activeStudioTab === 'Product') {
+      alert("Please provide a product image or description.");
       return;
     }
 
@@ -520,11 +586,18 @@ export default function VirtualStudioPage() {
       const input: GenerateVirtualShootInput = {
         numImages,
       };
+      
+      // Reset prompts based on active tab to avoid sending wrong data
+      let finalModelPrompt = (activeStudioTab === 'Apparel') ? modelPrompt : '';
+      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? apparelPrompt : '';
+      let finalModelImage = (activeStudioTab === 'Apparel') ? modelImage : null;
+      let finalApparelImage = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product' || activeStudioTab === 'Re-imagine') ? apparelImage : null;
 
-      if (modelImage) input.modelImage = await fileToDataURI(modelImage);
-      if (apparelImage) input.apparelImage = await fileToDataURI(apparelImage);
-      if (modelPrompt) input.modelPrompt = modelPrompt;
-      if (apparelPrompt) input.apparelPrompt = apparelPrompt;
+
+      if (finalModelImage) input.modelImage = await fileToDataURI(finalModelImage);
+      if (finalApparelImage) input.apparelImage = await fileToDataURI(finalApparelImage);
+      if (finalModelPrompt) input.modelPrompt = finalModelPrompt;
+      if (finalApparelPrompt) input.apparelPrompt = finalApparelPrompt;
       if (scenePrompt) input.scenePrompt = scenePrompt;
       
       const result = await generateVirtualShoot(input);
@@ -556,6 +629,7 @@ export default function VirtualStudioPage() {
           setApparelImage={setApparelImage}
           setModelPrompt={setModelPrompt}
           setApparelPrompt={setApparelPrompt}
+          activeTab={activeStudioTab}
         />
         <CanvasPanel generatedImages={generatedImages} isGenerating={isGenerating} />
         <SettingsPanel
@@ -568,3 +642,4 @@ export default function VirtualStudioPage() {
     </div>
   );
 }
+
