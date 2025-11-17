@@ -1,3 +1,76 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "landing-hero-1",
+      "description": "AI generated fashion shoot in a desert.",
+      "imageUrl": "https://images.unsplash.com/photo-1694861685570-af4a64544464?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwZGVzZXJ0fGVufDB8fHx8MTc2MzM4Mjg0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion desert"
+    },
+    {
+      "id": "carousel-1",
+      "description": "AI generated model wearing a futuristic outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1617467037307-3a9a091a72d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZmFzaGlvbiUyMGZ1dHVyaXN0aWN8ZW58MHx8fHwxNzYzMzgyODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion futuristic"
+    },
+    {
+      "id": "carousel-2",
+      "description": "AI generated product shot of a watch.",
+      "imageUrl": "https://images.unsplash.com/photo-1714218707578-92465ec6fa8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwcm9kdWN0JTIwd2F0Y2h8ZW58MHx8fHwxNzYzMzE4NTM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product watch"
+    },
+    {
+      "id": "carousel-3",
+      "description": "AI generated model in a vibrant street style.",
+      "imageUrl": "https://images.unsplash.com/photo-1666932521131-d990bd263a2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwc3RyZWV0fGVufDB8fHx8MTc2MzM4Mjg0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion street"
+    },
+    {
+      "id": "carousel-4",
+      "description": "AI generated shot of sneakers floating in air.",
+      "imageUrl": "https://images.unsplash.com/photo-1622760807800-66cf1466fc08?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwcm9kdWN0JTIwc25lYWtlcnN8ZW58MHx8fHwxNzYzMzgyODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product sneakers"
+    },
+    {
+      "id": "carousel-5",
+      "description": "AI generated model with an elegant dress in a minimalist setting.",
+      "imageUrl": "https://images.unsplash.com/photo-1762843353685-0d85c8c882f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmYXNoaW9uJTIwZWxlZ2FudHxlbnwwfHx8fDE3NjMzODI4NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion elegant"
+    },
+    {
+      "id": "project-1",
+      "description": "Project: Urban Fashion Shoot",
+      "imageUrl": "https://images.unsplash.com/photo-1649947051912-c3117b536d8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwdXJiYW58ZW58MHx8fHwxNzYzMzgyODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion urban"
+    },
+    {
+      "id": "project-2",
+      "description": "Project: Minimalist Skincare",
+      "imageUrl": "https://images.unsplash.com/photo-1609097164721-d8b247a6bd6b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwcm9kdWN0JTIwc2tpbmNhcmV8ZW58MHx8fHwxNzYzMzgyODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product skincare"
+    },
+    {
+      "id": "project-3",
+      "description": "Project: Summer Collection",
+      "imageUrl": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmYXNoaW9uJTIwc3VtbWVyfGVufDB8fHx8MTc2MzM4Mjg0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion summer"
+    },
+    {
+      "id": "project-4",
+      "description": "Project: Tech Gadgets Showcase",
+      "imageUrl": "https://images.unsplash.com/photo-1646621407507-121ac70030d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwcm9kdWN0JTIwdGVjaHxlbnwwfHx8fDE3NjMzODI4NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product tech"
+    },
+    {
+      "id": "project-5",
+      "description": "Project: Luxury Handbags",
+      "imageUrl": "https://images.unsplash.com/photo-1628136473110-6e95a86f4b81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwcm9kdWN0JTIwbHV4dXJ5fGVufDB8fHx8MTc2MzM4Mjg0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product luxury"
+    },
+    {
+      "id": "project-6",
+      "description": "Project: Sportswear Campaign",
+      "imageUrl": "https://images.unsplash.com/photo-1649660289179-54539943a58a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwc3BvcnR8ZW58MHx8fHwxNzYzMzgyODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion sport"
+    }
+  ]
 }
