@@ -230,7 +230,7 @@ export default function LandingPage() {
               <Link href="/login">Log in</Link>
             </Button>
             <Button asChild className="bg-gradient-to-r from-[#FFB400] to-[#8B5CF6] text-black shadow-xl hover:scale-105">
-              <Link href="/signup">Sign up free</Link>
+              <Link href="/signup">Sign up</Link>
             </Button>
           </div>
         </div>
@@ -345,16 +345,17 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold">Real outputs from the community</h3>
-              <div className="hidden sm:flex gap-3">
-                <CarouselPrevious className="p-2 rounded bg-white/6" />
-                <CarouselNext className="p-2 rounded bg-white/6" />
-              </div>
             </div>
-
+            
             <Carousel
-              opts={{ align: "start", loop: true, slidesPerView: 3 }}
+              opts={{ align: "start", loop: true }}
               className="w-full"
             >
+              <div className="hidden sm:flex gap-3 justify-end mb-4">
+                <CarouselPrevious className="p-2 rounded bg-white/6 relative -top-8" />
+                <CarouselNext className="p-2 rounded bg-white/6 relative -top-8" />
+              </div>
+
               <CarouselContent>
                 {PlaceHolderImages.filter((p) => p.id.startsWith("carousel")).map((img, idx) => (
                   <CarouselItem key={img.id} className="sm:basis-1/2 md:basis-1/3 p-2">
@@ -524,3 +525,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
