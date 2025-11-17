@@ -99,7 +99,7 @@ export default function NewShootPage() {
   };
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[auto,1fr,auto] lg:gap-12 min-h-full pb-24 lg:pb-0">
+    <div className="flex flex-col lg:grid lg:grid-cols-[auto,1fr,auto] lg:gap-12 min-h-full">
       {/* --- Stepper Sidebar --- */}
       <aside className="w-full lg:w-64 xl:w-72">
         <div className="lg:sticky lg:top-24">
@@ -137,8 +137,13 @@ export default function NewShootPage() {
       </aside>
 
       {/* --- Main Content --- */}
-      <main className="flex-1 min-w-0 py-8 lg:py-0">
-        {renderStepContent()}
+      <main className="flex-1 min-w-0 py-8 lg:py-0 flex flex-col justify-between">
+        <div>{renderStepContent()}</div>
+        <div className="mt-8 pt-8 border-t flex justify-end">
+            <Button size="lg" onClick={() => setCurrentStep(s => Math.min(s + 1, 5))}>
+            Continue <ChevronRight className="ml-2 h-5 w-5" />
+            </Button>
+        </div>
       </main>
 
       {/* --- Preview Panel --- */}
@@ -151,12 +156,6 @@ export default function NewShootPage() {
         </div>
       </aside>
 
-      {/* --- Mobile & Desktop Navigation --- */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t lg:border-t-0 z-20 flex justify-end">
-        <Button size="lg" onClick={() => setCurrentStep(s => Math.min(s + 1, 5))}>
-          Continue <ChevronRight className="ml-2 h-5 w-5" />
-        </Button>
-      </div>
     </div>
   );
 }
