@@ -45,6 +45,7 @@ import {
   MinusCircle,
   Paintbrush,
   Aperture,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -193,23 +194,29 @@ const InputsPanel = ({
   setApparelImage,
   setModelPrompt,
   setApparelPrompt,
+  setProductPrompt,
   modelImage,
   apparelImage,
   modelPrompt,
   apparelPrompt,
+  productPrompt,
   activeTab,
 }: {
   setModelImage: (file: File | null) => void;
   setApparelImage: (file: File | null) => void;
   setModelPrompt: (prompt: string) => void;
   setApparelPrompt: (prompt: string) => void;
+  setProductPrompt: (prompt: string) => void;
   modelImage: File | null;
   apparelImage: File | null;
   modelPrompt: string;
   apparelPrompt: string;
+  productPrompt: string;
   activeTab: string;
 }) => {
   const [modelInputType, setModelInputType] = useState("Upload");
+  const [bodyType, setBodyType] = useState("Athletic");
+  const [apparelFit, setApparelFit] = useState("Regular");
 
   const onModelDrop = useCallback((acceptedFiles: File[]) => {
     setModelImage(acceptedFiles[0]);
@@ -217,6 +224,10 @@ const InputsPanel = ({
 
   const onApparelDrop = useCallback((acceptedFiles: File[]) => {
     setApparelImage(acceptedFiles[0]);
+  }, [setApparelImage]);
+
+  const onProductDrop = useCallback((acceptedFiles: File[]) => {
+    setApparelImage(acceptedFiles[0]); // Re-use apparel image state for product
   }, [setApparelImage]);
 
   const renderContent = () => {
@@ -262,14 +273,20 @@ const InputsPanel = ({
                   {modelInputType === 'Models' && (
                     <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Model Library Coming Soon</div>
                   )}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                       <div>
                           <label className="text-sm font-medium text-muted-foreground">Age</label>
                           <Slider defaultValue={[25]} max={60} min={18} step={1} className="my-2"/>
                       </div>
                       <div>
                           <label className="text-sm font-medium text-muted-foreground">Body Type</label>
-                          <Slider defaultValue={[50]} max={100} step={1} className="my-2"/>
+                           <div className="grid grid-cols-2 gap-2 mt-2">
+                                {["Slim", "Athletic", "Average", "Curvy"].map(bt => (
+                                    <Button key={bt} onClick={() => setBodyType(bt)} variant={bodyType === bt ? 'secondary' : 'outline'} className={cn('bg-transparent border-white/10', bodyType === bt && 'bg-white/10 text-white')}>
+                                        {bt}
+                                    </Button>
+                                ))}
+                           </div>
                       </div>
                   </div>
               </AccordionContent>
@@ -292,6 +309,33 @@ const InputsPanel = ({
                       className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
                   />
               </AccordionContent>
+            </AccordionItem>
+             <AccordionItem value="apparel-controls">
+                <AccordionTrigger className="font-semibold text-base hover:no-underline"><Settings2 className="mr-2" size={20}/> Apparel Controls</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                    <div>
+                        <label className="text-sm font-medium text-muted-foreground">Fit Adjustment</label>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                           {["Tight", "Regular", "Loose"].map(fit => (
+                               <Button key={fit} onClick={() => setApparelFit(fit)} variant={apparelFit === fit ? 'secondary' : 'outline'} className={cn('bg-transparent border-white/10', apparelFit === fit && 'bg-white/10 text-white')}>
+                                   {fit}
+                               </Button>
+                           ))}
+                        </div>
+                    </div>
+                     <div>
+                        <label className="text-sm font-medium text-muted-foreground">Cloth Simulation</label>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                           <Button variant="outline" className="bg-transparent border-white/10">Cotton</Button>
+                           <Button variant="outline" className="bg-transparent border-white/10">Silk</Button>
+                           <Button variant="outline" className="bg-transparent border-white/10">Denim</Button>
+                        </div>
+                    </div>
+                     <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-muted-foreground">Auto De-wrinkle</label>
+                        <Switch defaultChecked />
+                    </div>
+                </AccordionContent>
             </AccordionItem>
             <AccordionItem value="pose" className="border-b-0">
                 <AccordionTrigger className="font-semibold text-base hover:no-underline"><PersonStanding className="mr-2" size={20}/> Pose & Expression</AccordionTrigger>
@@ -318,23 +362,44 @@ const InputsPanel = ({
         );
       case "Product":
         return (
-          <div className="flex flex-col gap-4 flex-grow">
-            <h3 className="font-semibold text-base">Product Details</h3>
-            <ImageUpload
-              onDrop={onApparelDrop} // Re-using apparel drop for product
-              title="Upload Product Image"
-              description="PNG with transparent background recommended"
-              icon={<Package className="h-8 w-8 text-muted-foreground" />}
-              uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
-              onRemove={() => setApparelImage(null)}
-            />
-             <textarea
-                value={apparelPrompt}
-                onChange={(e) => setApparelPrompt(e.target.value)}
-                placeholder="Describe the product and desired shot type. e.g., 'A sleek black watch on a marble surface'."
-                className="w-full h-32 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
-            />
-          </div>
+          <Accordion type="multiple" defaultValue={['product', 'product-controls']} className="w-full">
+            <AccordionItem value="product">
+              <AccordionTrigger className="font-semibold text-base hover:no-underline"><Package className="mr-2" size={20} /> Product</AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
+                  <ImageUpload
+                      onDrop={onProductDrop}
+                      title="Upload Product Image"
+                      description="PNG with transparent background recommended"
+                      icon={<Package className="h-8 w-8 text-muted-foreground" />}
+                      uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
+                      onRemove={() => setApparelImage(null)}
+                  />
+                  <Textarea
+                      value={productPrompt}
+                      onChange={(e) => setProductPrompt(e.target.value)}
+                      placeholder="Describe the product and desired shot type. e.g., 'A sleek black watch on a marble surface'."
+                      className="w-full h-32 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
+                  />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="product-controls" className="border-b-0">
+                <AccordionTrigger className="font-semibold text-base hover:no-underline"><Settings2 className="mr-2" size={20}/> Product Controls</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                     <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-muted-foreground">Realistic Shadow</label>
+                        <Switch defaultChecked />
+                    </div>
+                     <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-muted-foreground">Floating Product</label>
+                        <Switch />
+                    </div>
+                    <Textarea
+                      placeholder="Product Angle (e.g., front view, 45-degree angle)"
+                      className="w-full p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
+                    />
+                </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         );
       case "Design":
         return (
@@ -354,7 +419,7 @@ const InputsPanel = ({
           <div className="flex flex-col gap-4 flex-grow">
             <h3 className="font-semibold text-base">Image Transformation</h3>
             <ImageUpload
-              onDrop={onApparelDrop}
+              onDrop={onApparelDrop} // Re-using for simplicity
               title="Upload Image to Re-imagine"
               description="Upload any image to transform it"
               icon={<BrainCircuit className="h-8 w-8 text-muted-foreground" />}
@@ -668,6 +733,7 @@ export default function VirtualStudioPage() {
   const [apparelImage, setApparelImage] = useState<File | null>(null);
   const [modelPrompt, setModelPrompt] = useState("");
   const [apparelPrompt, setApparelPrompt] = useState("");
+  const [productPrompt, setProductPrompt] = useState("");
   const [scenePrompt, setScenePrompt] = useState("");
   const [numImages, setNumImages] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -701,7 +767,7 @@ export default function VirtualStudioPage() {
       };
       
       let finalModelPrompt = (activeStudioTab === 'Apparel') ? modelPrompt : undefined;
-      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? apparelPrompt : undefined;
+      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? apparelPrompt : productPrompt;
       let finalModelImage = (activeStudioTab === 'Apparel') ? modelImage : null;
       let finalApparelImage = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product' || activeStudioTab === 'Re-imagine') ? apparelImage : null;
 
@@ -738,10 +804,12 @@ export default function VirtualStudioPage() {
           apparelImage={apparelImage}
           modelPrompt={modelPrompt}
           apparelPrompt={apparelPrompt}
+          productPrompt={productPrompt}
           setModelImage={setModelImage}
           setApparelImage={setApparelImage}
           setModelPrompt={setModelPrompt}
           setApparelPrompt={setApparelPrompt}
+          setProductPrompt={setProductPrompt}
           activeTab={activeStudioTab}
         />
         <CanvasPanel generatedImages={generatedImages} isGenerating={isGenerating} />
