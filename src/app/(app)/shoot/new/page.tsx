@@ -767,7 +767,7 @@ export default function VirtualStudioPage() {
       };
       
       let finalModelPrompt = (activeStudioTab === 'Apparel') ? modelPrompt : undefined;
-      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? apparelPrompt : productPrompt;
+      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? (apparelPrompt || productPrompt) : undefined;
       let finalModelImage = (activeStudioTab === 'Apparel') ? modelImage : null;
       let finalApparelImage = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product' || activeStudioTab === 'Re-imagine') ? apparelImage : null;
 
