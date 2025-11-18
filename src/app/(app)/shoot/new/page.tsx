@@ -36,6 +36,12 @@ import {
   RefreshCw,
   Download,
   ZoomIn,
+  PersonStanding,
+  Smile,
+  Type,
+  Maximize,
+  Heart,
+  Film,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +57,7 @@ import Image from "next/image";
 import { generateVirtualShoot } from "@/ai/flows/virtual-shoot";
 import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas";
 import { Slider } from "@/components/ui/slider";
+import { Card, CardContent } from "@/components/ui/card";
 
 const studioTabs = [
     { icon: <Shirt size={16} />, label: "Apparel" },
@@ -91,6 +98,9 @@ const StudioHeader = ({
       </div>
     </div>
     <div className="flex items-center gap-3 w-full md:w-auto">
+       <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
+        <span>Credits: 4,982</span>
+      </div>
       <Button
         className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
         onClick={onGenerate}
@@ -209,7 +219,7 @@ const InputsPanel = ({
     switch (activeTab) {
       case "Apparel":
         return (
-          <Accordion type="multiple" defaultValue={['model','apparel']} className="w-full">
+          <Accordion type="multiple" defaultValue={['model', 'apparel', 'pose']} className="w-full">
             <AccordionItem value="model">
               <AccordionTrigger className="font-semibold text-base hover:no-underline"><Users className="mr-2" size={20} /> Model</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
@@ -246,11 +256,21 @@ const InputsPanel = ({
                   />
                   )}
                   {modelInputType === 'Models' && (
-                    <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Coming Soon</div>
+                    <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Model Library Coming Soon</div>
                   )}
+                  <div className="space-y-3">
+                      <div>
+                          <label className="text-sm font-medium text-muted-foreground">Age</label>
+                          <Slider defaultValue={[25]} max={60} min={18} step={1} className="my-2"/>
+                      </div>
+                      <div>
+                          <label className="text-sm font-medium text-muted-foreground">Body Type</label>
+                          <Slider defaultValue={[50]} max={100} step={1} className="my-2"/>
+                      </div>
+                  </div>
               </AccordionContent>
             </AccordionItem>
-             <AccordionItem value="apparel" className="border-b-0">
+            <AccordionItem value="apparel">
               <AccordionTrigger className="font-semibold text-base hover:no-underline"><Shirt className="mr-2" size={20} /> Apparel</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                   <ImageUpload
@@ -268,6 +288,27 @@ const InputsPanel = ({
                       className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
                   />
               </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="pose" className="border-b-0">
+                <AccordionTrigger className="font-semibold text-base hover:no-underline"><PersonStanding className="mr-2" size={20}/> Pose & Expression</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                    <div>
+                        <label className="text-sm font-medium text-muted-foreground">Pose</label>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                           <Button variant="outline" className="bg-transparent border-white/10">Standing</Button>
+                           <Button variant="outline" className="bg-transparent border-white/10">Sitting</Button>
+                           <Button variant="outline" className="bg-transparent border-white/10">Walking</Button>
+                        </div>
+                    </div>
+                     <div>
+                        <label className="text-sm font-medium text-muted-foreground">Expression</label>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                           <Button variant="outline" className="bg-transparent border-white/10">Neutral</Button>
+                           <Button variant="outline" className="bg-transparent border-white/10">Smiling</Button>
+                           <Button variant="outline" className="bg-transparent border-white/10">Serious</Button>
+                        </div>
+                    </div>
+                </AccordionContent>
             </AccordionItem>
           </Accordion>
         );
@@ -299,6 +340,9 @@ const InputsPanel = ({
               placeholder="Describe your design concept. The AI will generate a moodboard and style guide... e.g., 'A 90s retro-futurism theme for a new sneaker launch'."
               className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
             />
+             <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2">
+                <WandSparkles className="h-4 w-4" /> Generate Moodboard
+            </Button>
           </div>
         );
       case "Re-imagine":
@@ -333,7 +377,7 @@ const InputsPanel = ({
 };
 
 const CanvasPanel = ({ generatedImages, isGenerating }: { generatedImages: string[]; isGenerating: boolean }) => (
-  <main className="bg-[#171A24] rounded-lg flex flex-col items-center justify-center p-4 md:p-8 text-center overflow-auto">
+  <main className="bg-[#0E1019] rounded-lg flex flex-col items-center justify-center p-4 md:p-8 text-center overflow-auto border-2 border-white/5">
     {isGenerating ? (
       <div className="flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-12 w-12 text-purple-400 animate-spin" />
@@ -386,8 +430,8 @@ const SettingsPanel = ({
   setScenePrompt: (prompt: string) => void;
   scenePrompt: string;
 }) => {
-  const [ecommercePack, setEcommercePack] = useState("Off");
   const [aspectRatio, setAspectRatio] = useState("Portrait");
+  const [imageQuality, setImageQuality] = useState("Standard");
 
 
   return (
@@ -395,7 +439,7 @@ const SettingsPanel = ({
       <h2 className="text-lg font-semibold">Settings</h2>
       <Accordion
         type="multiple"
-        defaultValue={["output", "scene-style", "lighting", "camera"]}
+        defaultValue={["output", "scene-style", "lighting", "camera", "looks"]}
         className="w-full"
       >
         <AccordionItem value="output">
@@ -451,6 +495,30 @@ const SettingsPanel = ({
                 </div>
                 <Switch />
             </div>
+             <div>
+              <h4 className="font-medium text-sm mb-2 text-muted-foreground">Image Quality</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {["Standard", "HD", "Ultra"].map((q) => (
+                  <Button
+                    key={q}
+                    variant={imageQuality === q ? "secondary" : "outline"}
+                    onClick={() => setImageQuality(q)}
+                    className={cn(
+                      "h-9 bg-transparent border-white/10 text-muted-foreground",
+                      imageQuality === q && "bg-white/10 text-white"
+                    )}
+                  >
+                    {q}
+                  </Button>
+                ))}
+              </div>
+            </div>
+             <div className="flex items-center justify-between">
+                <div>
+                    <p className="font-medium text-sm">High-Res Upscale</p>
+                </div>
+                <Switch />
+            </div>
           </AccordionContent>
         </AccordionItem>
 
@@ -459,13 +527,24 @@ const SettingsPanel = ({
             <Palette className="mr-2" size={20} />
             Scene & Style
           </AccordionTrigger>
-          <AccordionContent className="pt-4">
-            <textarea
-              value={scenePrompt}
-              onChange={(e) => setScenePrompt(e.target.value)}
-              placeholder="e.g., A bright, sunny day at a beach with palm trees."
-              className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
-            />
+          <AccordionContent className="pt-4 space-y-3">
+             <Card className="bg-[#0E1019] border-white/10">
+                <CardContent className="p-3">
+                    <h4 className="font-medium text-sm mb-2 text-muted-foreground">AI Scene Prompt</h4>
+                    <textarea
+                        value={scenePrompt}
+                        onChange={(e) => setScenePrompt(e.target.value)}
+                        placeholder="e.g., A bright, sunny day at a beach with palm trees."
+                        className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                    />
+                </CardContent>
+            </Card>
+             <Card className="bg-[#0E1019] border-white/10">
+                <CardContent className="p-3">
+                     <h4 className="font-medium text-sm mb-2 text-muted-foreground">Props & Backgrounds</h4>
+                     <Button variant="outline" className="w-full bg-transparent border-white/10">Open Library</Button>
+                </CardContent>
+            </Card>
           </AccordionContent>
         </AccordionItem>
         
@@ -502,21 +581,32 @@ const SettingsPanel = ({
             </div>
           </AccordionContent>
         </AccordionItem>
-
-        <AccordionItem value="animation">
-          <AccordionTrigger className="font-semibold text-base hover:no-underline">
-            <Video className="mr-2" size={20} />
-            Animation Studio
-          </AccordionTrigger>
-          <AccordionContent className="pt-2 text-muted-foreground text-sm">Coming soon.</AccordionContent>
-        </AccordionItem>
-
+        
         <AccordionItem value="looks">
           <AccordionTrigger className="font-semibold text-base hover:no-underline">
             <Eye className="mr-2" size={20} />
             Looks & Styles
           </AccordionTrigger>
-          <AccordionContent className="pt-2 text-muted-foreground text-sm">Coming soon.</AccordionContent>
+          <AccordionContent className="pt-4">
+            <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" className="bg-transparent border-white/10 h-auto flex flex-col items-center py-2">
+                    <Film size={20} />
+                    <span className="text-xs mt-1">Film</span>
+                </Button>
+                <Button variant="outline" className="bg-transparent border-white/10 h-auto flex flex-col items-center py-2">
+                    <Heart size={20} />
+                    <span className="text-xs mt-1">Vintage</span>
+                </Button>
+                <Button variant="outline" className="bg-transparent border-white/10 h-auto flex flex-col items-center py-2">
+                    <Maximize size={20} />
+                    <span className="text-xs mt-1">B & W</span>
+                </Button>
+                <Button variant="outline" className="bg-transparent border-white/10 h-auto flex flex-col items-center py-2">
+                    <Sparkles size={20} />
+                    <span className="text-xs mt-1">E-commerce</span>
+                </Button>
+            </div>
+          </AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="creative-controls" className="border-b-0">
@@ -623,5 +713,3 @@ export default function VirtualStudioPage() {
     </div>
   );
 }
-
-    
