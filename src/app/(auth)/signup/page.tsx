@@ -53,7 +53,7 @@ export default function SignupPage() {
       <CardHeader className="text-center">
         <Logo className="mb-4 justify-center" />
         <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-        <CardDescription>Start your creative journey with StudioForge.</CardDescription>
+        <CardDescription>Start your creative journey with AI Cart.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

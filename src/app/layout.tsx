@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'StudioForge — AI Creative Studio',
+  title: 'AI Cart — AI Creative Studio',
   description: 'Generate studio-quality product images & model shoots with AI.',
 };
 

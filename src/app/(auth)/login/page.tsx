@@ -58,7 +58,7 @@ export default function LoginPage() {
       <CardHeader className="text-center">
         <Logo className="mb-4 justify-center" />
         <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
-        <CardDescription>Use your StudioForge account to sign in.</CardDescription>
+        <CardDescription>Use your AI Cart account to sign in.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

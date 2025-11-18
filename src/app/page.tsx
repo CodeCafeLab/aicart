@@ -112,7 +112,7 @@ const testimonials = [
     role: "E-commerce Manager",
     avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
     text:
-      "StudioForge turned a weeks-long shoot into minutes. The quality is professional and consistent.",
+      "AI Cart turned a weeks-long shoot into minutes. The quality is professional and consistent.",
   },
   {
     name: "Mike T.",
@@ -180,9 +180,9 @@ const pricingTiers = [
 
 const faqItems = [
   {
-    question: "What is StudioForge?",
+    question: "What is AI Cart?",
     answer:
-      "StudioForge is an AI creative studio for producing high-quality product photography and animations without physical shoots. Upload, style, and generate.",
+      "AI Cart is an AI creative studio for producing high-quality product photography and animations without physical shoots. Upload, style, and generate.",
   },
   {
     question: "How do credits work?",
@@ -259,7 +259,7 @@ export default function LandingPage() {
             </Badge>
 
             <h1 className="mt-6 text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight">
-              StudioForge — AI Studio for <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFB400] to-[#8B5CF6]">Product & Apparel Photography</span>
+              AI Cart — AI Studio for <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFB400] to-[#8B5CF6]">Product & Apparel Photography</span>
             </h1>
 
             <p className="mt-6 max-w-3xl mx-auto text-lg text-slate-200/80">
@@ -301,7 +301,7 @@ export default function LandingPage() {
             <div className="rounded-2xl overflow-hidden border border-white/6 shadow-2xl bg-gradient-to-b from-white/3 to-transparent p-1">
               <Image
                 src={PlaceHolderImages.find((p) => p.id === "landing-hero-1")?.imageUrl || "https://picsum.photos/1200/600"}
-                alt="studioforge showcase"
+                alt="AI Cart showcase"
                 width={1600}
                 height={800}
                 className="w-full h-auto object-cover rounded-xl"
@@ -478,7 +478,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 md:px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <Logo />
-            <p className="mt-4 text-slate-300/80 text-sm max-w-sm">StudioForge — Create product photography, model shoots, and animations with AI. Faster, cheaper, and consistent.</p>
+            <p className="mt-4 text-slate-300/80 text-sm max-w-sm">AI Cart — Create product photography, model shoots, and animations with AI. Faster, cheaper, and consistent.</p>
             <div className="mt-4 flex items-center gap-3">
               <Link href="#" className="text-slate-300/70 hover:text-[#FFB400]">Terms</Link>
               <Link href="#" className="text-slate-300/70 hover:text-[#FFB400]">Privacy</Link>
@@ -506,7 +506,7 @@ export default function LandingPage() {
 
           <div>
             <h4 className="font-semibold mb-3">Get in touch</h4>
-            <p className="text-sm text-slate-300/80">support@studioforge.ai</p>
+            <p className="text-sm text-slate-300/80">support@aicart.ai</p>
             <div className="mt-4">
               <Button variant="outline" asChild>
                 <Link href="/signup">Start Free Trial</Link>
@@ -517,7 +517,7 @@ export default function LandingPage() {
 
         <div className="border-t border-white/6 py-4">
           <div className="container mx-auto px-4 md:px-6 text-sm text-slate-400 flex items-center justify-between">
-            <span>© {new Date().getFullYear()} StudioForge — All rights reserved.</span>
+            <span>© {new Date().getFullYear()} AI Cart — All rights reserved.</span>
             <span>Built with ♥︎ — CodeCafeLab</span>
           </div>
         </div>

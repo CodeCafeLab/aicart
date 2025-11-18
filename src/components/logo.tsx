@@ -8,7 +8,7 @@ const Logo = ({ className, showText = true }: { className?: string; showText?: b
       <div className="p-1.5 bg-gradient-to-br from-primary to-brand-purple rounded-lg">
         <Sparkles className="w-5 h-5 text-primary-foreground" />
       </div>
-      {showText && <span>StudioForge</span>}
+      {showText && <span>AI Cart</span>}
     </Link>
   );
 };
