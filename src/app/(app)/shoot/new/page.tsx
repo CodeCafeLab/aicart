@@ -28,6 +28,14 @@ import {
   Loader2,
   X,
   Package,
+  Lightbulb,
+  Sun,
+  Video,
+  Trash2,
+  Plus,
+  RefreshCw,
+  Download,
+  ZoomIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +50,7 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { generateVirtualShoot } from "@/ai/flows/virtual-shoot";
 import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas";
+import { Slider } from "@/components/ui/slider";
 
 const studioTabs = [
     { icon: <Shirt size={16} />, label: "Apparel" },
@@ -128,7 +137,7 @@ const ImageUpload = ({
     <div
       {...getRootProps()}
       className={cn(
-        "border-2 border-dashed border-white/10 rounded-lg p-6 h-48 flex flex-col items-center justify-center text-center flex-grow bg-[#0E1019] cursor-pointer transition-colors",
+        "border-2 border-dashed border-white/10 rounded-lg p-4 h-40 flex flex-col items-center justify-center text-center flex-grow bg-[#0E1019] cursor-pointer transition-colors",
         isDragActive && "border-purple-500 bg-purple-500/10"
       )}
     >
@@ -157,8 +166,8 @@ const ImageUpload = ({
       ) : (
         <>
           {icon}
-          <h3 className="font-semibold mt-4">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <h3 className="font-semibold mt-2 text-sm">{title}</h3>
+          <p className="text-xs text-muted-foreground">{description}</p>
         </>
       )}
     </div>
@@ -186,7 +195,6 @@ const InputsPanel = ({
   apparelPrompt: string;
   activeTab: string;
 }) => {
-  const [inputType, setInputType] = useState("Model");
   const [modelInputType, setModelInputType] = useState("Upload");
 
   const onModelDrop = useCallback((acceptedFiles: File[]) => {
@@ -201,94 +209,77 @@ const InputsPanel = ({
     switch (activeTab) {
       case "Apparel":
         return (
-          <>
-            <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
-              <Button
-                onClick={() => setInputType("Model")}
-                variant={inputType === "Model" ? "secondary" : "ghost"}
-                className={cn("flex-1", inputType === "Model" && "bg-white/10 text-white")}
-              >
-                <Users className="mr-2" size={16} />
-                Model
-              </Button>
-              <Button
-                onClick={() => setInputType("Apparel")}
-                variant={inputType === "Apparel" ? "secondary" : "ghost"}
-                className={cn("flex-1 text-muted-foreground", inputType === "Apparel" && "bg-white/10 text-white")}
-              >
-                <Shirt className="mr-2" size={16} />
-                Apparel
-              </Button>
-            </div>
-
-            {inputType === "Model" && (
-              <div className="flex flex-col gap-4 flex-grow">
-                <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
+          <Accordion type="multiple" defaultValue={['model','apparel']} className="w-full">
+            <AccordionItem value="model">
+              <AccordionTrigger className="font-semibold text-base hover:no-underline"><Users className="mr-2" size={20} /> Model</AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
+                  <div className="flex gap-2 p-1 bg-[#0E1019] rounded-md border border-white/10">
                   <Button onClick={() => setModelInputType('Upload')} variant={modelInputType === 'Upload' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs', modelInputType === 'Upload' && 'bg-white/5 text-white')}>
-                    <Upload className="mr-1.5" size={14} />
-                    Upload
+                      <Upload className="mr-1.5" size={14} />
+                      Upload
                   </Button>
                   <Button onClick={() => setModelInputType('Prompt')} variant={modelInputType === 'Prompt' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs text-muted-foreground', modelInputType === 'Prompt' && 'bg-white/5 text-white')}>
-                    <MessageSquare className="mr-1.5" size={14} />
-                    Prompt
+                      <MessageSquare className="mr-1.5" size={14} />
+                      Prompt
                   </Button>
                   <Button onClick={() => setModelInputType('Models')} variant={modelInputType === 'Models' ? 'secondary' : 'ghost'} className={cn('flex-1 text-xs text-muted-foreground', modelInputType === 'Models' && 'bg-white/5 text-white')}>
-                    <Library className="mr-1.5" size={14} />
-                    Models
+                      <Library className="mr-1.5" size={14} />
+                      Library
                   </Button>
-                </div>
-                {modelInputType === 'Upload' && (
+                  </div>
+                  {modelInputType === 'Upload' && (
                   <ImageUpload
-                    onDrop={onModelDrop}
-                    title="Upload Your Model"
-                    description="Drag 'n' drop or click to browse"
-                    icon={<User className="h-10 w-10 text-muted-foreground" />}
-                    uploadedImage={modelImage ? URL.createObjectURL(modelImage) : null}
-                    onRemove={() => setModelImage(null)}
+                      onDrop={onModelDrop}
+                      title="Upload Your Model"
+                      description="Drag 'n' drop or click"
+                      icon={<User className="h-8 w-8 text-muted-foreground" />}
+                      uploadedImage={modelImage ? URL.createObjectURL(modelImage) : null}
+                      onRemove={() => setModelImage(null)}
                   />
-                )}
-                {modelInputType === 'Prompt' && (
+                  )}
+                  {modelInputType === 'Prompt' && (
                   <textarea
-                    value={modelPrompt}
-                    onChange={(e) => setModelPrompt(e.target.value)}
-                    placeholder="e.g., A confident woman with curly hair, smiling, wearing a simple t-shirt..."
-                    className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                      value={modelPrompt}
+                      onChange={(e) => setModelPrompt(e.target.value)}
+                      placeholder="e.g., A confident woman with curly hair, smiling, wearing a simple t-shirt..."
+                      className="w-full h-32 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
                   />
-                )}
-                 {modelInputType === 'Models' && (
-                   <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Coming Soon</div>
-                )}
-              </div>
-            )}
-
-            {inputType === "Apparel" && (
-               <div className="flex flex-col gap-4 flex-grow">
+                  )}
+                  {modelInputType === 'Models' && (
+                    <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">Coming Soon</div>
+                  )}
+              </AccordionContent>
+            </AccordionItem>
+             <AccordionItem value="apparel" className="border-b-0">
+              <AccordionTrigger className="font-semibold text-base hover:no-underline"><Shirt className="mr-2" size={20} /> Apparel</AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
                   <ImageUpload
                   onDrop={onApparelDrop}
                   title="Upload Your Apparel"
-                  description="Drag 'n' drop or click to browse"
-                  icon={<Shirt className="h-10 w-10 text-muted-foreground" />}
+                  description="Drag 'n' drop or click"
+                  icon={<Shirt className="h-8 w-8 text-muted-foreground" />}
                   uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
                   onRemove={() => setApparelImage(null)}
                   />
                   <textarea
                       value={apparelPrompt}
                       onChange={(e) => setApparelPrompt(e.target.value)}
-                      placeholder="Describe the apparel if no image is provided (e.g., a red floral summer dress)."
-                      className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                      placeholder="Or describe the apparel (e.g., red floral summer dress)."
+                      className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
                   />
-              </div>
-            )}
-          </>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         );
       case "Product":
         return (
           <div className="flex flex-col gap-4 flex-grow">
+            <h3 className="font-semibold text-base">Product Details</h3>
             <ImageUpload
               onDrop={onApparelDrop} // Re-using apparel drop for product
               title="Upload Product Image"
               description="PNG with transparent background recommended"
-              icon={<Package className="h-10 w-10 text-muted-foreground" />}
+              icon={<Package className="h-8 w-8 text-muted-foreground" />}
               uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
               onRemove={() => setApparelImage(null)}
             />
@@ -296,33 +287,35 @@ const InputsPanel = ({
                 value={apparelPrompt}
                 onChange={(e) => setApparelPrompt(e.target.value)}
                 placeholder="Describe the product and desired shot type. e.g., 'A sleek black watch on a marble surface'."
-                className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                className="w-full h-32 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
             />
           </div>
         );
       case "Design":
         return (
           <div className="flex flex-col gap-4 flex-grow">
+             <h3 className="font-semibold text-base">Moodboard Generator</h3>
             <textarea
               placeholder="Describe your design concept. The AI will generate a moodboard and style guide... e.g., 'A 90s retro-futurism theme for a new sneaker launch'."
-              className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+              className="w-full flex-grow p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
             />
           </div>
         );
       case "Re-imagine":
         return (
           <div className="flex flex-col gap-4 flex-grow">
+            <h3 className="font-semibold text-base">Image Transformation</h3>
             <ImageUpload
               onDrop={onApparelDrop}
               title="Upload Image to Re-imagine"
               description="Upload any image to transform it"
-              icon={<BrainCircuit className="h-10 w-10 text-muted-foreground" />}
+              icon={<BrainCircuit className="h-8 w-8 text-muted-foreground" />}
               uploadedImage={apparelImage ? URL.createObjectURL(apparelImage) : null}
               onRemove={() => setApparelImage(null)}
             />
              <textarea
                 placeholder="Describe how you want to transform the image. e.g., 'Change the background to a futuristic neon city'."
-                className="w-full h-24 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none"
+                className="w-full h-32 p-3 rounded-xl bg-[#0E1019] border border-white/10 resize-none text-sm"
             />
           </div>
         );
@@ -352,13 +345,19 @@ const CanvasPanel = ({ generatedImages, isGenerating }: { generatedImages: strin
     ) : generatedImages.length > 0 ? (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full h-full">
         {generatedImages.map((imgSrc, index) => (
-          <div key={index} className="relative rounded-lg overflow-hidden border border-white/10">
+          <div key={index} className="relative group rounded-lg overflow-hidden border border-white/10">
             <Image
               src={imgSrc}
               alt={`Generated image ${index + 1}`}
               fill
               style={{objectFit: "cover"}}
             />
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <Button size="icon" variant="ghost"><ZoomIn size={20} /></Button>
+                <Button size="icon" variant="ghost"><RefreshCw size={20} /></Button>
+                <Button size="icon" variant="ghost"><Download size={20} /></Button>
+                <Button size="icon" variant="destructive"><Trash2 size={20} /></Button>
+            </div>
           </div>
         ))}
       </div>
@@ -369,7 +368,7 @@ const CanvasPanel = ({ generatedImages, isGenerating }: { generatedImages: strin
         </div>
         <h2 className="text-xl font-semibold">Virtual Studio Canvas</h2>
         <p className="text-muted-foreground mt-2 max-w-xs">
-          Your generated images will appear here. Begin by adding a model and apparel.
+          Your generated images will appear here. Add inputs and click Generate.
         </p>
       </>
     )}
@@ -396,7 +395,7 @@ const SettingsPanel = ({
       <h2 className="text-lg font-semibold">Settings</h2>
       <Accordion
         type="multiple"
-        defaultValue={["output", "scene-style", "e-commerce", "social", "asset-pack", "looks", "creative-controls"]}
+        defaultValue={["output", "scene-style", "lighting", "camera"]}
         className="w-full"
       >
         <AccordionItem value="output">
@@ -446,6 +445,12 @@ const SettingsPanel = ({
                 ))}
               </div>
             </div>
+             <div className="flex items-center justify-between">
+                <div>
+                    <p className="font-medium text-sm">Transparent Background</p>
+                </div>
+                <Switch />
+            </div>
           </AccordionContent>
         </AccordionItem>
 
@@ -464,76 +469,52 @@ const SettingsPanel = ({
           </AccordionContent>
         </AccordionItem>
         
-        <AccordionItem value="e-commerce">
+        <AccordionItem value="lighting">
           <AccordionTrigger className="font-semibold text-base hover:no-underline">
-            <LayoutGrid className="mr-2" size={20} />
-            E-commerce Pack
+            <Sun className="mr-2" size={20} />
+            Lighting Studio
           </AccordionTrigger>
           <AccordionContent className="space-y-4 pt-4">
-            <p className="text-sm text-muted-foreground">
-              Automatically generate a standard set of shots for your product page.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {["Off", "Essential", "Plus", "Dynamic", "Editorial", "POV"].map(
-                (pack) => (
-                  <Button
-                    key={pack}
-                    variant={ecommercePack === pack ? "secondary" : "outline"}
-                    size="sm"
-                    onClick={() => setEcommercePack(pack)}
-                    className={cn(
-                      "text-xs bg-transparent border-white/10 text-muted-foreground",
-                      ecommercePack === pack && "bg-white/10 text-white"
-                    )}
-                  >
-                    {pack}
-                  </Button>
-                )
-              )}
+            <div>
+                <label className="text-sm font-medium text-muted-foreground">Intensity</label>
+                <Slider defaultValue={[70]} max={100} step={1} className="my-2"/>
+            </div>
+            <div>
+                <label className="text-sm font-medium text-muted-foreground">Temperature</label>
+                <Slider defaultValue={[5500]} min={2000} max={8000} step={100} className="my-2"/>
             </div>
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="social">
+        <AccordionItem value="camera">
           <AccordionTrigger className="font-semibold text-base hover:no-underline">
-            <LinkIcon className="mr-2" size={20} />
-            Social Media Pack
+            <Camera className="mr-2" size={20} />
+            Camera Controls
           </AccordionTrigger>
           <AccordionContent className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Generate social assets</p>
-                <p className="text-sm text-muted-foreground">
-                  4 lifestyle shots in 1:1 and 9:16 aspect ratios.
-                </p>
-              </div>
-              <Switch />
+            <div>
+                <label className="text-sm font-medium text-muted-foreground">Focal Length</label>
+                <Slider defaultValue={[50]} min={24} max={105} step={1} className="my-2"/>
+            </div>
+            <div>
+                <label className="text-sm font-medium text-muted-foreground">Aperture (f-stop)</label>
+                <Slider defaultValue={[2.8]} min={1.4} max={16} step={0.1} className="my-2"/>
             </div>
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="asset-pack">
+        <AccordionItem value="animation">
           <AccordionTrigger className="font-semibold text-base hover:no-underline">
-            <Layers className="mr-2" size={20} />
-            Complete Asset Pack
+            <Video className="mr-2" size={20} />
+            Animation Studio
           </AccordionTrigger>
-          <AccordionContent className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Generate full asset pack</p>
-                <p className="text-sm text-muted-foreground">
-                  8 e-commerce and social media assets in one click.
-                </p>
-              </div>
-              <Switch />
-            </div>
-          </AccordionContent>
+          <AccordionContent className="pt-2 text-muted-foreground text-sm">Coming soon.</AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="looks">
           <AccordionTrigger className="font-semibold text-base hover:no-underline">
             <Eye className="mr-2" size={20} />
-            Looks
+            Looks & Styles
           </AccordionTrigger>
           <AccordionContent className="pt-2 text-muted-foreground text-sm">Coming soon.</AccordionContent>
         </AccordionItem>
@@ -541,7 +522,7 @@ const SettingsPanel = ({
         <AccordionItem value="creative-controls" className="border-b-0">
           <AccordionTrigger className="font-semibold text-base hover:no-underline">
             <Settings2 className="mr-2" size={20} />
-            Creative Controls
+            Advanced Controls
           </AccordionTrigger>
           <AccordionContent className="pt-2 text-muted-foreground text-sm">Coming soon.</AccordionContent>
         </AccordionItem>
@@ -587,15 +568,15 @@ export default function VirtualStudioPage() {
         numImages,
       };
       
-      // Reset prompts based on active tab to avoid sending wrong data
-      let finalModelPrompt = (activeStudioTab === 'Apparel') ? modelPrompt : '';
-      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? apparelPrompt : '';
+      let finalModelPrompt = (activeStudioTab === 'Apparel') ? modelPrompt : undefined;
+      let finalApparelPrompt = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product') ? apparelPrompt : undefined;
       let finalModelImage = (activeStudioTab === 'Apparel') ? modelImage : null;
       let finalApparelImage = (activeStudioTab === 'Apparel' || activeStudioTab === 'Product' || activeStudioTab === 'Re-imagine') ? apparelImage : null;
 
-
       if (finalModelImage) input.modelImage = await fileToDataURI(finalModelImage);
       if (finalApparelImage) input.apparelImage = await fileToDataURI(finalApparelImage);
+      
+      // Don't send empty prompts
       if (finalModelPrompt) input.modelPrompt = finalModelPrompt;
       if (finalApparelPrompt) input.apparelPrompt = finalApparelPrompt;
       if (scenePrompt) input.scenePrompt = scenePrompt;
@@ -643,3 +624,4 @@ export default function VirtualStudioPage() {
   );
 }
 
+    
