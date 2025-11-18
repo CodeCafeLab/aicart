@@ -42,6 +42,9 @@ import {
   Maximize,
   Heart,
   Film,
+  MinusCircle,
+  Paintbrush,
+  Aperture,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +61,7 @@ import { generateVirtualShoot } from "@/ai/flows/virtual-shoot";
 import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 
 const studioTabs = [
     { icon: <Shirt size={16} />, label: "Apparel" },
@@ -439,7 +443,7 @@ const SettingsPanel = ({
       <h2 className="text-lg font-semibold">Settings</h2>
       <Accordion
         type="multiple"
-        defaultValue={["output", "scene-style", "lighting", "camera", "looks"]}
+        defaultValue={["output", "scene-style", "lighting", "camera", "looks", "creative-controls"]}
         className="w-full"
       >
         <AccordionItem value="output">
@@ -614,7 +618,45 @@ const SettingsPanel = ({
             <Settings2 className="mr-2" size={20} />
             Advanced Controls
           </AccordionTrigger>
-          <AccordionContent className="pt-2 text-muted-foreground text-sm">Coming soon.</AccordionContent>
+          <AccordionContent className="space-y-6 pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Smile size={16} className="text-muted-foreground" />
+                <label htmlFor="face-correction" className="font-medium text-sm">Face Correction</label>
+              </div>
+              <Switch id="face-correction" />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lightbulb size={16} className="text-muted-foreground" />
+                <label htmlFor="smart-relighting" className="font-medium text-sm">Smart Relighting</label>
+              </div>
+              <Switch id="smart-relighting" defaultChecked />
+            </div>
+            <div className="space-y-2">
+              <label className="font-medium text-sm">Background Blur</label>
+              <Slider defaultValue={[20]} max={100} step={1} />
+            </div>
+            <div className="space-y-2">
+              <label className="font-medium text-sm">Sharpening</label>
+              <Slider defaultValue={[10]} max={100} step={1} />
+            </div>
+             <div className="space-y-2">
+              <label className="font-medium text-sm">Grain</label>
+              <Slider defaultValue={[5]} max={100} step={1} />
+            </div>
+             <div>
+                 <Button variant="outline" className="w-full bg-transparent border-white/10">
+                    <Paintbrush size={16} className="mr-2"/> Inpainting / Outpainting
+                </Button>
+            </div>
+            <div>
+              <label className="flex items-center gap-2 font-medium text-sm mb-2">
+                <MinusCircle size={16}/> Negative Prompt
+              </label>
+              <Textarea placeholder="e.g., extra fingers, distorted face, blurry"/>
+            </div>
+          </AccordionContent>
         </AccordionItem>
       </Accordion>
     </aside>
