@@ -823,5 +823,3 @@ export default function VirtualStudioPage() {
     </div>
   );
 }
-
-    
