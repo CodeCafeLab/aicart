@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/form";
 import Logo from "@/components/logo";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE_URL, apiFetch } from "@/lib/api";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -49,20 +50,54 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const adminEmail = "admin@aicart.local";
-    const adminPass = "admin123";
-    const userEmail = "user@aicart.local";
-    const userPass = "user123";
-    const isAdmin = values.email === adminEmail && values.password === adminPass;
-    const isUser = values.email === userEmail && values.password === userPass;
-    if (isAdmin || isUser) {
-      localStorage.setItem("role", isAdmin ? "admin" : "user");
-      localStorage.setItem("user", JSON.stringify({ email: values.email }));
-      toast({ title: "Login Successful", description: isAdmin ? "Signed in as Admin" : "Signed in as User" });
-      router.push(isAdmin ? "/dashboard" : "/shoot/new");
-    } else {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const base = API_BASE_URL;
+    try {
+      const adminRes = await apiFetch(`/api/auth/login/admin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (adminRes.ok) {
+        const data = await adminRes.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", "admin");
+        localStorage.setItem("user", JSON.stringify({ email: values.email }));
+        toast({ title: "Login Successful", description: "Signed in as Admin" });
+        router.push("/dashboard");
+        return;
+      }
+      const userRes = await apiFetch(`/api/auth/login/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (userRes.ok) {
+        const data = await userRes.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", "user");
+        localStorage.setItem("user", JSON.stringify({ email: values.email }));
+        toast({ title: "Login Successful", description: "Signed in as User" });
+        router.push("/shoot/new");
+        return;
+      }
+      const signupRes = await apiFetch(`/api/auth/signup/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, name: values.email.split("@")[0] }),
+      });
+      if (signupRes.ok) {
+        const data = await signupRes.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", "user");
+        localStorage.setItem("user", JSON.stringify({ email: values.email }));
+        toast({ title: "Account Created", description: "Signed in as User" });
+        router.push("/shoot/new");
+        return;
+      }
       toast({ variant: "destructive", title: "Login Failed", description: "Invalid credentials." });
+    } catch {
+      toast({ variant: "destructive", title: "Network Error", description: "Unable to reach server." });
     }
   }
 
@@ -130,10 +165,7 @@ export default function LoginPage() {
             <Button variant="outline" className="w-full">
               Sign In with Google
             </Button>
-            <div className="text-xs text-muted-foreground text-center space-y-1 pt-2">
-              <div>Admin: admin@aicart.local / admin123</div>
-              <div>User: user@aicart.local / user123</div>
-            </div>
+            <div className="text-xs text-muted-foreground text-center space-y-1 pt-2">Use your account credentials</div>
           </form>
         </Form>
       </CardContent>

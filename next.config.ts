@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  env: {
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000",
+  },
   webpack: (config) => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
