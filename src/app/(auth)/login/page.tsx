@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,10 +13,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "../../../components/ui/card";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { Checkbox } from "../../../components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -24,10 +24,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import Logo from "@/components/logo";
-import { useToast } from "@/hooks/use-toast";
-import { API_BASE_URL, apiFetch } from "@/lib/api";
+} from "../../../components/ui/form";
+import Logo from "../../../components/logo";
+import { useToast } from "../../../hooks/use-toast";
+import { API_BASE_URL, apiFetch } from "../../../lib/api";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -95,9 +95,17 @@ export default function LoginPage() {
         router.push("/shoot/new");
         return;
       }
-      toast({ variant: "destructive", title: "Login Failed", description: "Invalid credentials." });
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid credentials.",
+      });
     } catch {
-      toast({ variant: "destructive", title: "Network Error", description: "Unable to reach server." });
+      toast({
+        variant: "destructive",
+        title: "Network Error",
+        description: "Unable to reach server.",
+      });
     }
   }
 
@@ -161,11 +169,18 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground">Sign In</Button>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground"
+            >
+              Sign In
+            </Button>
             <Button variant="outline" className="w-full">
               Sign In with Google
             </Button>
-            <div className="text-xs text-muted-foreground text-center space-y-1 pt-2">Use your account credentials</div>
+            <div className="text-xs text-muted-foreground text-center space-y-1 pt-2">
+              Use your account credentials
+            </div>
           </form>
         </Form>
       </CardContent>
