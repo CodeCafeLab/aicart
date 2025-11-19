@@ -1,3 +1,6 @@
+"use client";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import AppSidebar from "@/components/app-sidebar";
 import AppHeader from "@/components/app-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -7,6 +10,31 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    if (!role) {
+      router.replace("/login");
+      return;
+    }
+    if (role === "user") {
+      const allowed = [
+        "/dashboard",
+        "/shoot/new",
+        "/shoots",
+        "/projects",
+      ];
+      const allowedPrefixes = [
+        "/projects/",
+      ];
+      const ok = allowed.includes(pathname) || allowedPrefixes.some((p) => pathname.startsWith(p));
+      if (!ok) {
+        router.replace("/dashboard");
+      }
+    }
+  }, [pathname, router]);
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">

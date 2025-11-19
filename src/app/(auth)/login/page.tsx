@@ -50,22 +50,19 @@ export default function LoginPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Mock API call
-    console.log("Submitting login form", values);
-    if (values.email && values.password) {
-      // In a real app, you'd store a token in localStorage or a cookie
+    const adminEmail = "admin@aicart.local";
+    const adminPass = "admin123";
+    const userEmail = "user@aicart.local";
+    const userPass = "user123";
+    const isAdmin = values.email === adminEmail && values.password === adminPass;
+    const isUser = values.email === userEmail && values.password === userPass;
+    if (isAdmin || isUser) {
+      localStorage.setItem("role", isAdmin ? "admin" : "user");
       localStorage.setItem("user", JSON.stringify({ email: values.email }));
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-      router.push("/dashboard");
+      toast({ title: "Login Successful", description: isAdmin ? "Signed in as Admin" : "Signed in as User" });
+      router.push(isAdmin ? "/dashboard" : "/shoot/new");
     } else {
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: "Please check your email and password.",
-      });
+      toast({ variant: "destructive", title: "Login Failed", description: "Invalid credentials." });
     }
   }
 
@@ -129,15 +126,14 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground"
-            >
-              Sign In
-            </Button>
+            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground">Sign In</Button>
             <Button variant="outline" className="w-full">
               Sign In with Google
             </Button>
+            <div className="text-xs text-muted-foreground text-center space-y-1 pt-2">
+              <div>Admin: admin@aicart.local / admin123</div>
+              <div>User: user@aicart.local / user123</div>
+            </div>
           </form>
         </Form>
       </CardContent>

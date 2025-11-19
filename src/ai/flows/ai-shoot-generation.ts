@@ -44,7 +44,7 @@ const generateAiShootFlow = ai.defineFlow(
       model: 'googleai/imagen-4.0-fast-generate-001',
     });
     return {
-      imageUrl: media.url,
+      imageUrl: (media && (media as any).url) ? (media as any).url : '',
     };
   }
 );

@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,8 @@ import { Search, Bell } from "lucide-react";
 import { Input } from "./ui/input";
 
 export default function AppHeader() {
+  const pathname = usePathname();
+  if (pathname === "/shoot/new") return null;
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-8">
       <SidebarTrigger className="hidden md:flex" />

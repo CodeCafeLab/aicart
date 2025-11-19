@@ -13,6 +13,7 @@ export const GenerateVirtualShootInputSchema = z.object({
   ),
   apparelPrompt: z.string().optional().describe('A text description of the apparel.'),
   scenePrompt: z.string().optional().describe('A text description of the desired background scene and style.'),
+  negativePrompt: z.string().optional().describe('Undesired qualities or artifacts to avoid in generation.'),
   numImages: z.number().default(1).describe('The number of images to generate.'),
 });
 export type GenerateVirtualShootInput = z.infer<typeof GenerateVirtualShootInputSchema>;

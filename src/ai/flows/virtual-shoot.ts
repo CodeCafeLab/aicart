@@ -26,7 +26,7 @@ const virtualShootFlow = ai.defineFlow(
     outputSchema: GenerateVirtualShootOutputSchema,
   },
   async (input) => {
-    const { modelImage, modelPrompt, apparelImage, apparelPrompt, scenePrompt, numImages } = input;
+    const { modelImage, modelPrompt, apparelImage, apparelPrompt, scenePrompt, numImages, negativePrompt } = input;
 
     let fullPrompt = "Generate a photorealistic image for a fashion shoot. ";
 
@@ -57,19 +57,23 @@ const virtualShootFlow = ai.defineFlow(
         promptParts.push({ text: "The background should be a clean, minimalist studio setting." });
     }
 
+    if (negativePrompt) {
+        promptParts.push({ text: `Avoid: ${negativePrompt}. `});
+    }
+
     promptParts.push({ text: "The final image should be high-quality, professional, and ready for an e-commerce website." });
 
     const generatedImages: string[] = [];
     for (let i = 0; i < numImages; i++) {
-        const { media } = await ai.generate({
+        const { media }: any = await ai.generate({
           prompt: promptParts,
           model: 'googleai/gemini-1.5-flash-preview-0514', // Using a powerful multi-modal model
            config: {
               responseModalities: ['TEXT', 'IMAGE'],
             },
         });
-        if (media.url) {
-            generatedImages.push(media.url);
+        if (media && media.url) {
+            generatedImages.push(media.url as string);
         }
     }
 
