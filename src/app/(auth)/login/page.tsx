@@ -6,17 +6,33 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import Logo from "@/components/logo";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters." }),
   remember: z.boolean().optional(),
 });
 
@@ -58,7 +74,7 @@ export default function LoginPage() {
       <CardHeader className="text-center">
         <Logo className="mb-4 justify-center" />
         <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
-        <CardDescription>Use your AI Cart account to sign in.</CardDescription>
+        <CardDescription>Use your AI Kart account to sign in.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -84,7 +100,9 @@ export default function LoginPage() {
                   <div className="flex items-center justify-between">
                     <FormLabel>Password</FormLabel>
                     <Link href="/forgot-password" passHref>
-                      <Button variant="link" size="sm" className="p-0 h-auto">Forgot password?</Button>
+                      <Button variant="link" size="sm" className="p-0 h-auto">
+                        Forgot password?
+                      </Button>
                     </Link>
                   </div>
                   <FormControl>
@@ -106,15 +124,20 @@ export default function LoginPage() {
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Remember me
-                    </FormLabel>
+                    <FormLabel>Remember me</FormLabel>
                   </div>
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground">Sign In</Button>
-            <Button variant="outline" className="w-full">Sign In with Google</Button>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground"
+            >
+              Sign In
+            </Button>
+            <Button variant="outline" className="w-full">
+              Sign In with Google
+            </Button>
           </form>
         </Form>
       </CardContent>
@@ -122,12 +145,12 @@ export default function LoginPage() {
         <p className="text-sm text-muted-foreground">
           Don't have an account?{" "}
           <Link href="/signup" passHref>
-            <Button variant="link" className="p-0 h-auto">Create account</Button>
+            <Button variant="link" className="p-0 h-auto">
+              Create account
+            </Button>
           </Link>
         </p>
       </CardFooter>
     </Card>
   );
 }
-
-    

@@ -6,23 +6,40 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import Logo from "@/components/logo";
 import { useToast } from "@/hooks/use-toast";
 
-const formSchema = z.object({
-  fullName: z.string().min(2, { message: "Name is too short." }),
-  email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  confirmPassword: z.string(),
-  company: z.string().optional(),
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
+const formSchema = z
+  .object({
+    fullName: z.string().min(2, { message: "Name is too short." }),
+    email: z.string().email({ message: "Please enter a valid email." }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters." }),
+    confirmPassword: z.string(),
+    company: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignupPage() {
   const router = useRouter();
@@ -42,8 +59,8 @@ export default function SignupPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Submitting signup form", values);
     toast({
-        title: "Account Created!",
-        description: "We've sent a verification link to your email.",
+      title: "Account Created!",
+      description: "We've sent a verification link to your email.",
     });
     router.push("/dashboard");
   }
@@ -52,8 +69,12 @@ export default function SignupPage() {
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
         <Logo className="mb-4 justify-center" />
-        <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-        <CardDescription>Start your creative journey with AI Cart.</CardDescription>
+        <CardTitle className="font-headline text-2xl">
+          Create an Account
+        </CardTitle>
+        <CardDescription>
+          Start your creative journey with AI Kart.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -110,7 +131,7 @@ export default function SignupPage() {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="company"
               render={({ field }) => (
@@ -123,7 +144,12 @@ export default function SignupPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground">Create Account</Button>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-primary to-brand-purple text-primary-foreground"
+            >
+              Create Account
+            </Button>
           </form>
         </Form>
       </CardContent>
@@ -131,12 +157,12 @@ export default function SignupPage() {
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link href="/login" passHref>
-            <Button variant="link" className="p-0 h-auto">Sign In</Button>
+            <Button variant="link" className="p-0 h-auto">
+              Sign In
+            </Button>
           </Link>
         </p>
       </CardFooter>
     </Card>
   );
 }
-
-    
