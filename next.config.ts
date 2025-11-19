@@ -37,6 +37,15 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000",
   },
+  async rewrites() {
+    const backend = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backend}/api/:path*`,
+      },
+    ];
+  },
   webpack: (config) => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
