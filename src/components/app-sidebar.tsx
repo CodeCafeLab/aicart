@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   Sidebar,
   SidebarHeader,
@@ -34,6 +35,7 @@ import {
   HelpCircle,
   LogOut,
   Theater,
+  Tags,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -87,6 +89,7 @@ const toolsNav = [
 
 const managementNav = [
   { href: "/projects", icon: <Folder size={18} />, label: "My Projects" },
+  { href: "/categories", icon: <Tags size={18} />, label: "Category Manager" },
 ];
 
 const settingsNav = [
@@ -104,10 +107,17 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const role =
-    typeof window !== "undefined"
-      ? localStorage.getItem("role") || "user"
-      : "user";
+  
+  // Use state to avoid hydration mismatch - start with "user" (matches server)
+  const [role, setRole] = useState<"admin" | "user">("user");
+  
+  // Read from localStorage only on client after mount
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole === "admin" || storedRole === "user") {
+      setRole(storedRole);
+    }
+  }, []);
 
   if (pathname === "/shoot/new") {
     return null;

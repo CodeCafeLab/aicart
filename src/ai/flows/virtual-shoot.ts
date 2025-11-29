@@ -64,10 +64,14 @@ const virtualShootFlow = ai.defineFlow(
     promptParts.push({ text: "The final image should be high-quality, professional, and ready for an e-commerce website." });
 
     const generatedImages: string[] = [];
+    const model =
+      process.env.GOOGLE_GENAI_MODEL ||
+      process.env.NEXT_PUBLIC_GEMINI_MODEL ||
+      "googleai/gemini-2.0-flash";
     for (let i = 0; i < numImages; i++) {
         const { media }: any = await ai.generate({
           prompt: promptParts,
-          model: 'googleai/gemini-1.5-flash-preview-0514', // Using a powerful multi-modal model
+          model, // configurable model
            config: {
               responseModalities: ['TEXT', 'IMAGE'],
             },

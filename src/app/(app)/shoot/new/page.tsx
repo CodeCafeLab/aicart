@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Sparkles,
   Camera,
@@ -60,12 +60,12 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { generateVirtualShoot } from "@/ai/flows/virtual-shoot";
-import type { GenerateVirtualShootInput } from "@/ai/flows/virtual-shoot-schemas";
+import { createWebhookJob, pollWebhookJobStatus, type WebhookJobInput } from "@/lib/webhook";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -77,6 +77,24 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { sceneStylingWithAI } from "@/ai/flows/scene-styling-with-ai";
 import { suggestLightingAndAngles } from "@/ai/flows/suggest-lighting-and-angles";
+async function imageUrlToDataUrl(url: string): Promise<string> {
+  const r = await fetch(url);
+  const blob = await r.blob();
+  return await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+}
+function dataUrlToFile(dataUrl: string, filename: string): File {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new File([u8arr], filename, { type: mime });
+}
 
 const studioTabs = [
   { icon: <Shirt size={16} />, label: "Apparel" },
@@ -282,6 +300,19 @@ const InputsPanel = ({
   const [modelInputType, setModelInputType] = useState("Upload");
   const [bodyType, setBodyType] = useState("Athletic");
   const [apparelFit, setApparelFit] = useState("Regular");
+  const [modelLibraryItems, setModelLibraryItems] = useState<{ id: string; name: string; image_url?: string; gender?: string; style?: string; color?: string }[]>([]);
+  const [modelLibraryLoading, setModelLibraryLoading] = useState(false);
+
+  useEffect(() => {
+    if (modelInputType !== "Models") return;
+    setModelLibraryLoading(true);
+    apiFetch("/api/avatars")
+      .then((r) => r.json())
+      .then((data) => {
+        setModelLibraryItems((data?.items || []).map((a: any) => ({ id: a.id, name: a.name, image_url: a.image_url, gender: a.gender, style: a.style, color: a.color })));
+      })
+      .finally(() => setModelLibraryLoading(false));
+  }, [modelInputType]);
 
   const onModelDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -303,6 +334,8 @@ const InputsPanel = ({
     },
     [setApparelImage]
   );
+
+  
 
   const renderContent = () => {
     switch (activeTab) {
@@ -362,8 +395,34 @@ const InputsPanel = ({
                       />
                     )}
                     {modelInputType === "Models" && (
-                      <div className="text-center text-muted-foreground p-8 bg-[#0E1019] rounded-lg border border-dashed border-white/10">
-                        Model Library Coming Soon
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-2">Pick from your avatar library</div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {modelLibraryItems.map((a) => (
+                            <button
+                              key={a.id}
+                              className="rounded-xl bg-white/5 border border-white/10 overflow-hidden"
+                              onClick={async () => {
+                                if (a.image_url) {
+                                  const dataUrl = await imageUrlToDataUrl(a.image_url);
+                                  const file = dataUrlToFile(dataUrl, `${a.name}.png`);
+                                  setModelImage(file);
+                                }
+                              }}
+                            >
+                              {a.image_url ? (
+                                <img src={a.image_url} alt={a.name} className="h-24 w-full object-cover" />
+                              ) : (
+                                <div className="h-24 w-full flex items-center justify-center text-xs text-muted-foreground">No image</div>
+                              )}
+                              <div className="p-2 text-left">
+                                <div className="text-xs font-medium truncate">{a.name}</div>
+                                <div className="text-[10px] text-muted-foreground truncate">{[a.gender, a.style].filter(Boolean).join(" • ")}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        {modelLibraryLoading && <div className="text-sm text-muted-foreground mt-2">Loading...</div>}
                       </div>
                     )}
                     <div className="space-y-4">
@@ -589,62 +648,75 @@ const CanvasPanel = ({
         </p>
       </div>
     ) : generatedImages.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full h-full">
-        {generatedImages.map((imgSrc, index) => (
-          <div
-            key={index}
-            className="relative group rounded-lg overflow-hidden border border-white/10"
-          >
+      <div className="w-full h-full overflow-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
+          {generatedImages.map((imgSrc, index) => (
             <div
-              className={
-                aspectRatio === "Portrait"
-                  ? "aspect-[3/4]"
-                  : aspectRatio === "Square"
-                  ? "aspect-square"
-                  : aspectRatio === "Landscape"
-                  ? "aspect-[4/3]"
-                  : "aspect-[9/16]"
-              }
+              key={index}
+              className="relative group rounded-xl overflow-hidden border-2 border-white/10 bg-white/5 hover:border-[#FFB400]/50 transition-all shadow-lg hover:shadow-[#FFB400]/20"
             >
-              <Image
-                src={imgSrc}
-                alt={`Generated image ${index + 1}`}
-                fill
-                style={{ objectFit: "cover" }}
-              />
+              <div
+                className={
+                  aspectRatio === "Portrait"
+                    ? "aspect-[3/4]"
+                    : aspectRatio === "Square"
+                    ? "aspect-square"
+                    : aspectRatio === "Landscape"
+                    ? "aspect-[4/3]"
+                    : "aspect-[9/16]"
+                }
+              >
+                <Image
+                  src={imgSrc}
+                  alt={`Generated image ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+              <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                #{index + 1}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center gap-2 p-4">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => onZoom(imgSrc)}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  <ZoomIn size={16} className="mr-1" />
+                  View
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => onRefresh(index)}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  <RefreshCw size={16} className="mr-1" />
+                  Regenerate
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => onDownload(imgSrc)}
+                  className="bg-[#FFB400]/80 hover:bg-[#FFB400] text-black border-[#FFB400]"
+                >
+                  <Download size={16} className="mr-1" />
+                  Download
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => onDelete(index)}
+                  className="bg-red-500/80 hover:bg-red-500"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onZoom(imgSrc)}
-              >
-                <ZoomIn size={20} />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onRefresh(index)}
-              >
-                <RefreshCw size={20} />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onDownload(imgSrc)}
-              >
-                <Download size={20} />
-              </Button>
-              <Button
-                size="icon"
-                variant="destructive"
-                onClick={() => onDelete(index)}
-              >
-                <Trash2 size={20} />
-              </Button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     ) : (
       <>
@@ -691,6 +763,26 @@ const SettingsPanel = ({
   apparelPrompt,
   setArtDirectorOpen,
   setArtDirectorOutput,
+  pbLibraryOpen,
+  setPbLibraryOpen,
+  pbActiveTab,
+  setPbActiveTab,
+  pbCategory,
+  setPbCategory,
+  pbItems,
+  pbLoading,
+  selectedScene,
+  setSelectedScene,
+  selectedLighting,
+  setSelectedLighting,
+  selectedBackground,
+  setSelectedBackground,
+  selectedProps,
+  setSelectedProps,
+  scenes,
+  scenesLoading,
+  lightingPresets,
+  lightingLoading,
 }: {
   numImages: number;
   setNumImages: (num: number) => void;
@@ -722,6 +814,26 @@ const SettingsPanel = ({
   apparelPrompt: string;
   setArtDirectorOpen: (v: boolean) => void;
   setArtDirectorOutput: (v: any) => void;
+  pbLibraryOpen: boolean;
+  setPbLibraryOpen: (v: boolean) => void;
+  pbActiveTab: string;
+  setPbActiveTab: (v: string) => void;
+  pbCategory: string;
+  setPbCategory: (v: string) => void;
+  pbItems: any[];
+  pbLoading: boolean;
+  selectedScene: any | null;
+  setSelectedScene: (v: any | null) => void;
+  selectedLighting: any | null;
+  setSelectedLighting: (v: any | null) => void;
+  selectedBackground: any | null;
+  setSelectedBackground: (v: any | null) => void;
+  selectedProps: any[];
+  setSelectedProps: (v: any[]) => void;
+  scenes: any[];
+  scenesLoading: boolean;
+  lightingPresets: any[];
+  lightingLoading: boolean;
 }) => {
   return (
     <aside className="bg-[#171A24] rounded-lg p-4 flex flex-col gap-4 overflow-y-auto print:hidden">
@@ -920,6 +1032,43 @@ const SettingsPanel = ({
                 ))}
               </div>
             </div>
+            <div>
+              <h4 className="font-medium text-sm mb-2 text-muted-foreground">Scene Library</h4>
+              {scenesLoading ? (
+                <div className="text-sm text-muted-foreground">Loading scenes...</div>
+              ) : scenes.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  {scenes.slice(0, 6).map((scene) => (
+                    <button
+                      key={scene.id}
+                      onClick={() => {
+                        setSelectedScene(scene);
+                        const desc = scene.description || scene.name;
+                        setScenePrompt(scenePrompt ? `${scenePrompt} Scene: ${desc}.` : `Scene: ${desc}.`);
+                      }}
+                      className={cn(
+                        "rounded-lg border overflow-hidden text-left transition",
+                        selectedScene?.id === scene.id
+                          ? "border-[#FFB400] bg-[#FFB400]/10"
+                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                      )}
+                    >
+                      {scene.image_url && (
+                        <img src={scene.image_url} alt={scene.name} className="h-16 w-full object-cover" />
+                      )}
+                      <div className="p-2">
+                        <div className="text-xs font-medium truncate">{scene.name}</div>
+                        {scene.category && (
+                          <div className="text-[10px] text-muted-foreground truncate">{scene.category}</div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">No scenes available</div>
+              )}
+            </div>
             <Card className="bg-[#0E1019] border-white/10">
               <CardContent className="p-3">
                 <h4 className="font-medium text-sm mb-2 text-muted-foreground">
@@ -928,6 +1077,7 @@ const SettingsPanel = ({
                 <Button
                   variant="outline"
                   className="w-full bg-transparent border-white/10"
+                  onClick={() => setPbLibraryOpen(true)}
                 >
                   Open Library
                 </Button>
@@ -942,6 +1092,38 @@ const SettingsPanel = ({
             Lighting Studio
           </AccordionTrigger>
           <AccordionContent className="space-y-4 pt-4">
+            <div>
+              <h4 className="font-medium text-sm mb-2 text-muted-foreground">Lighting Presets</h4>
+              {lightingLoading ? (
+                <div className="text-sm text-muted-foreground">Loading presets...</div>
+              ) : lightingPresets.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                  {lightingPresets.slice(0, 4).map((preset) => (
+                    <button
+                      key={preset.id}
+                      onClick={() => {
+                        setSelectedLighting(preset);
+                        const lightingDesc = `Lighting: ${preset.name}, intensity ${preset.intensity}%, temperature ${preset.temperature}K, softness ${preset.softness}%, shadow ${preset.shadow}%, direction ${preset.direction || 'front'}.`;
+                        setScenePrompt(scenePrompt ? `${scenePrompt} ${lightingDesc}` : lightingDesc);
+                      }}
+                      className={cn(
+                        "rounded-lg border p-2 text-left transition text-xs",
+                        selectedLighting?.id === preset.id
+                          ? "border-[#FFB400] bg-[#FFB400]/10"
+                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                      )}
+                    >
+                      <div className="font-medium truncate">{preset.name}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">
+                        {preset.intensity}% • {preset.temperature}K
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">No presets available</div>
+              )}
+            </div>
             <div>
               <h4 className="font-medium text-sm mb-2 text-muted-foreground">Light Type</h4>
               <div className="grid grid-cols-3 gap-2">
@@ -1229,9 +1411,100 @@ const SettingsPanel = ({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <Dialog open={pbLibraryOpen} onOpenChange={setPbLibraryOpen}>
+        <DialogContent className="max-w-4xl bg-[#0E1019] border border-white/10">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Library</h3>
+            <Button variant="ghost" onClick={() => setPbLibraryOpen(false)}>Close</Button>
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Button size="sm" variant={pbActiveTab === "backgrounds" ? "secondary" : "outline"} onClick={() => setPbActiveTab("backgrounds")}>Backgrounds</Button>
+            <Button size="sm" variant={pbActiveTab === "props" ? "secondary" : "outline"} onClick={() => setPbActiveTab("props")}>Props</Button>
+          </div>
+          <DynamicCategories
+            type={pbActiveTab}
+            selected={pbCategory}
+            onSelect={setPbCategory}
+          />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            {pbItems.map((it) => {
+              const isSelected = pbActiveTab === "backgrounds" 
+                ? selectedBackground?.id === it.id
+                : selectedProps.some(p => p.id === it.id);
+              
+              return (
+                <button 
+                  key={it.id} 
+                  className={cn(
+                    "rounded-xl border overflow-hidden transition-all",
+                    isSelected
+                      ? "border-[#FFB400] bg-[#FFB400]/10 ring-2 ring-[#FFB400]/30"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  )}
+                  onClick={() => {
+                    if (pbActiveTab === "backgrounds") {
+                      setSelectedBackground(isSelected ? null : it);
+                      const piece = `Background: ${it.name}${pbCategory && pbCategory !== "All" ? ` (${pbCategory})` : ""}.`;
+                      setScenePrompt(scenePrompt ? `${scenePrompt} ${piece}` : piece);
+                    } else {
+                      if (isSelected) {
+                        setSelectedProps(selectedProps.filter(p => p.id !== it.id));
+                      } else {
+                        setSelectedProps([...selectedProps, it]);
+                      }
+                      const piece = `Prop: ${it.name}${pbCategory && pbCategory !== "All" ? ` (${pbCategory})` : ""}.`;
+                      setScenePrompt(scenePrompt ? `${scenePrompt} ${piece}` : piece);
+                    }
+                  }}
+                >
+                  {it.image_url ? (
+                    <img src={it.image_url} alt={it.name} className="h-24 w-full object-cover" />
+                  ) : (
+                    <div className="h-24 w-full flex items-center justify-center text-xs text-muted-foreground">No image</div>
+                  )}
+                  <div className="p-2 text-left">
+                    <div className="text-xs font-medium truncate">{it.name}</div>
+                    <div className="text-[10px] text-muted-foreground truncate">{pbCategory}</div>
+                    {isSelected && (
+                      <div className="text-[10px] text-[#FFB400] mt-1">✓ Selected</div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {pbLoading && <div className="text-sm text-muted-foreground">Loading...</div>}
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 };
+
+function DynamicCategories({ type, selected, onSelect }: { type: string; selected: string; onSelect: (v: string) => void }) {
+  const [cats, setCats] = useState<any[]>([]);
+  useEffect(() => {
+    apiFetch(`/api/library/categories?type=${type}`)
+      .then((r) => r.json())
+      .then((d) => setCats(d?.items?.length ? d.items : ["All","Studio","Indoor","Luxury","Urban"].map((name) => ({ name }))))
+      .catch(() => setCats(["All","Studio","Indoor","Luxury","Urban"].map((name) => ({ name }))));
+  }, [type]);
+  return (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {cats.map((cat) => (
+        <Button
+          key={cat.name}
+          size="sm"
+          variant={selected === cat.name ? "secondary" : "outline"}
+          onClick={() => onSelect(cat.name)}
+          className="bg-transparent border-white/10"
+          style={{ background: cat.bg_color || undefined, color: cat.accent_color || undefined }}
+        >
+          {cat.name}
+        </Button>
+      ))}
+    </div>
+  );
+}
 
 export default function VirtualStudioPage() {
   const [modelImage, setModelImage] = useState<File | null>(null);
@@ -1243,6 +1516,8 @@ export default function VirtualStudioPage() {
   const [numImages, setNumImages] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<string>("");
   const [activeStudioTab, setActiveStudioTab] = useState(studioTabs[0].label);
   const [aspectRatio, setAspectRatio] = useState("Portrait");
   const [imageQuality, setImageQuality] = useState("Standard");
@@ -1259,6 +1534,65 @@ export default function VirtualStudioPage() {
   const [beforeAfter, setBeforeAfter] = useState(false);
   const [artDirectorOpen, setArtDirectorOpen] = useState(false);
   const [artDirectorOutput, setArtDirectorOutput] = useState<{ sceneDescription?: string; moodSuggestions?: string[]; lightingSuggestions?: string; propSuggestions?: string[]; storylineSuggestions?: string; cameraSuggestions?: string; lightingList?: string[]; angleList?: string[]; conceptList?: string[] } | null>(null);
+  const [pbLibraryOpen, setPbLibraryOpen] = useState(false);
+  const [pbActiveTab, setPbActiveTab] = useState("backgrounds");
+  const [pbCategory, setPbCategory] = useState("All");
+  const [pbItems, setPbItems] = useState<any[]>([]);
+  const [pbLoading, setPbLoading] = useState(false);
+  
+  // Dynamic selections
+  const [scenes, setScenes] = useState<any[]>([]);
+  const [selectedScene, setSelectedScene] = useState<any | null>(null);
+  const [scenesLoading, setScenesLoading] = useState(false);
+  const [lightingPresets, setLightingPresets] = useState<any[]>([]);
+  const [selectedLighting, setSelectedLighting] = useState<any | null>(null);
+  const [lightingLoading, setLightingLoading] = useState(false);
+  const [selectedBackground, setSelectedBackground] = useState<any | null>(null);
+  const [selectedProps, setSelectedProps] = useState<any[]>([]);
+
+  // Fetch scenes
+  useEffect(() => {
+    setScenesLoading(true);
+    apiFetch("/api/library/scenes?limit=20")
+      .then((r) => r.json())
+      .then((data) => setScenes(data?.items || []))
+      .catch(() => setScenes([]))
+      .finally(() => setScenesLoading(false));
+  }, []);
+
+  // Fetch lighting presets
+  useEffect(() => {
+    setLightingLoading(true);
+    apiFetch("/api/lighting/presets")
+      .then((r) => r.json())
+      .then((data) => setLightingPresets(data?.items || []))
+      .catch(() => setLightingPresets([]))
+      .finally(() => setLightingLoading(false));
+  }, []);
+
+  useEffect(() => {
+    try {
+      const url = typeof window !== "undefined" ? localStorage.getItem("selectedAvatarImageUrl") : null;
+      if (url) {
+        imageUrlToDataUrl(url).then((dataUrl) => {
+          const file = dataUrlToFile(dataUrl, "avatar.png");
+          setModelImage(file);
+          localStorage.removeItem("selectedAvatarImageUrl");
+        }).catch(() => {});
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (!pbLibraryOpen) return;
+    setPbLoading(true);
+    const endpoint = pbActiveTab === "backgrounds" ? "/api/library/backgrounds" : "/api/library/props";
+    const q = pbCategory && pbCategory !== "All" ? `?category=${encodeURIComponent(pbCategory)}` : "";
+    apiFetch(`${endpoint}${q}`)
+      .then((r) => r.json())
+      .then((data) => setPbItems(data?.items || []))
+      .finally(() => setPbLoading(false));
+  }, [pbLibraryOpen, pbActiveTab, pbCategory]);
 
   const fileToDataURI = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -1267,6 +1601,24 @@ export default function VirtualStudioPage() {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  };
+
+  const buildErrorMessage = (error: any) => {
+    const message =
+      typeof error === "string"
+        ? error
+        : error?.message || error?.toString() || "Unknown error";
+    if (message.toLowerCase().includes("quota") || message.includes("429")) {
+      return {
+        title: "Gemini quota exceeded",
+        description:
+          "The configured Gemini API key has exhausted its quota. Update the key in your environment or wait before trying again.",
+      };
+    }
+    return {
+      title: "Generation failed",
+      description: message,
+    };
   };
 
   const handleGenerate = async () => {
@@ -1283,12 +1635,11 @@ export default function VirtualStudioPage() {
     setGeneratedImages([]);
     try {
       toast({
-        title: "Generating",
-        description: "Creating images with your settings.",
+        title: "Creating job",
+        description: "Preparing image generation job...",
       });
-      const input: GenerateVirtualShootInput = {
-        numImages,
-      };
+      
+      // Prepare input data
       let finalModelPrompt =
         activeStudioTab === "Apparel" ? modelPrompt : undefined;
       let finalApparelPrompt =
@@ -1302,13 +1653,42 @@ export default function VirtualStudioPage() {
         activeStudioTab === "Re-imagine"
           ? apparelImage
           : null;
-      if (finalModelImage)
-        input.modelImage = await fileToDataURI(finalModelImage);
-      if (finalApparelImage)
-        input.apparelImage = await fileToDataURI(finalApparelImage);
-      if (finalModelPrompt) input.modelPrompt = finalModelPrompt;
-      if (finalApparelPrompt) input.apparelPrompt = finalApparelPrompt;
+      
       let finalScene = scenePrompt;
+      
+      // Add selected scene details
+      if (selectedScene) {
+        const sceneDesc = selectedScene.description || selectedScene.name;
+        finalScene = finalScene
+          ? `${finalScene} Scene setting: ${sceneDesc}.`
+          : `Scene setting: ${sceneDesc}.`;
+        if (selectedScene.mood) {
+          finalScene = `${finalScene} Mood: ${selectedScene.mood}.`;
+        }
+      }
+      
+      // Add selected background
+      if (selectedBackground) {
+        finalScene = finalScene
+          ? `${finalScene} Background: ${selectedBackground.name}${selectedBackground.category ? ` (${selectedBackground.category})` : ''}.`
+          : `Background: ${selectedBackground.name}${selectedBackground.category ? ` (${selectedBackground.category})` : ''}.`;
+      }
+      
+      // Add selected props
+      if (selectedProps.length > 0) {
+        const propsList = selectedProps.map(p => p.name).join(', ');
+        finalScene = finalScene
+          ? `${finalScene} Props: ${propsList}.`
+          : `Props: ${propsList}.`;
+      }
+      
+      // Add selected lighting
+      if (selectedLighting) {
+        finalScene = finalScene
+          ? `${finalScene} Lighting: ${selectedLighting.name}, intensity ${selectedLighting.intensity}%, temperature ${selectedLighting.temperature}K, softness ${selectedLighting.softness}%, shadow ${selectedLighting.shadow}%, direction ${selectedLighting.direction || 'front'}.`
+          : `Lighting: ${selectedLighting.name}, intensity ${selectedLighting.intensity}%, temperature ${selectedLighting.temperature}K, softness ${selectedLighting.softness}%, shadow ${selectedLighting.shadow}%, direction ${selectedLighting.direction || 'front'}.`;
+      }
+      
       if (aspectRatio)
         finalScene = finalScene
           ? finalScene + ` Aspect ratio: ${aspectRatio}.`
@@ -1325,20 +1705,73 @@ export default function VirtualStudioPage() {
         finalScene = finalScene
           ? finalScene + ` High-resolution upscale.`
           : `High-resolution upscale.`;
-      if (finalScene) input.scenePrompt = finalScene;
-      if (negativePrompt) input.negativePrompt = negativePrompt;
-      const result = await generateVirtualShoot(input);
-      setGeneratedImages(result.imageUrls);
+      
+      // Prepare webhook input
+      const webhookInput: WebhookJobInput = {
+        numImages,
+        scenePrompt: finalScene || undefined,
+        negativePrompt: negativePrompt || undefined,
+        aspectRatio,
+        imageQuality,
+        transparentBg,
+        upscale,
+        selectedScene,
+        selectedLighting,
+        selectedBackground,
+        selectedProps: selectedProps.length > 0 ? selectedProps : undefined,
+      };
+      
+      if (finalModelImage) {
+        webhookInput.modelImage = await fileToDataURI(finalModelImage);
+      }
+      if (finalApparelImage) {
+        webhookInput.apparelImage = await fileToDataURI(finalApparelImage);
+      }
+      if (finalModelPrompt) {
+        webhookInput.modelPrompt = finalModelPrompt;
+      }
+      if (finalApparelPrompt) {
+        webhookInput.apparelPrompt = finalApparelPrompt;
+      }
+      
+      // Create webhook job
+      const jobResponse = await createWebhookJob(webhookInput);
+      setCurrentJobId(jobResponse.jobId);
+      setJobStatus("pending");
+      
       toast({
-        title: "Completed",
-        description: `Generated ${result.imageUrls.length} images.`,
+        title: "Job created",
+        description: `Job ID: ${jobResponse.jobId}. Processing in n8n...`,
       });
+      
+      // Poll for job status
+      setJobStatus("processing");
+      const status = await pollWebhookJobStatus(
+        jobResponse.jobId,
+        (currentStatus) => {
+          setJobStatus(currentStatus.status);
+          if (currentStatus.imageUrls.length > 0) {
+            setGeneratedImages(currentStatus.imageUrls);
+          }
+        }
+      );
+      
+      if (status.status === "completed" && status.imageUrls.length > 0) {
+        setGeneratedImages(status.imageUrls);
+        toast({
+          title: "Completed",
+          description: `Generated ${status.imageUrls.length} images.`,
+        });
+      } else if (status.status === "failed") {
+        throw new Error("Job failed in n8n");
+      }
     } catch (error) {
       console.error("Generation failed:", error);
+      const { title, description } = buildErrorMessage(error);
       toast({
         variant: "destructive",
-        title: "Generation failed",
-        description: "Please try again.",
+        title,
+        description,
       });
     } finally {
       setIsGenerating(false);
@@ -1373,29 +1806,58 @@ export default function VirtualStudioPage() {
           aspectRatio={aspectRatio}
           onZoom={(img) => setZoomImage(img)}
           onRefresh={async (i) => {
-            await (async () => {
-              const input: GenerateVirtualShootInput = { numImages: 1 };
+            try {
+              setIsGenerating(true);
+              // Use the same logic as handleGenerate but for single image
               let finalModelPrompt =
                 activeStudioTab === "Apparel" ? modelPrompt : undefined;
               let finalApparelPrompt =
                 activeStudioTab === "Apparel" || activeStudioTab === "Product"
                   ? apparelPrompt || productPrompt
                   : undefined;
-              let finalModelImage =
-                activeStudioTab === "Apparel" ? modelImage : null;
+              let finalModelImage = activeStudioTab === "Apparel" ? modelImage : null;
               let finalApparelImage =
                 activeStudioTab === "Apparel" ||
                 activeStudioTab === "Product" ||
                 activeStudioTab === "Re-imagine"
                   ? apparelImage
                   : null;
-              if (finalModelImage)
-                input.modelImage = await fileToDataURI(finalModelImage);
-              if (finalApparelImage)
-                input.apparelImage = await fileToDataURI(finalApparelImage);
-              if (finalModelPrompt) input.modelPrompt = finalModelPrompt;
-              if (finalApparelPrompt) input.apparelPrompt = finalApparelPrompt;
+              
               let finalScene = scenePrompt;
+              
+              // Add selected scene details
+              if (selectedScene) {
+                const sceneDesc = selectedScene.description || selectedScene.name;
+                finalScene = finalScene
+                  ? `${finalScene} Scene setting: ${sceneDesc}.`
+                  : `Scene setting: ${sceneDesc}.`;
+                if (selectedScene.mood) {
+                  finalScene = `${finalScene} Mood: ${selectedScene.mood}.`;
+                }
+              }
+              
+              // Add selected background
+              if (selectedBackground) {
+                finalScene = finalScene
+                  ? `${finalScene} Background: ${selectedBackground.name}${selectedBackground.category ? ` (${selectedBackground.category})` : ''}.`
+                  : `Background: ${selectedBackground.name}${selectedBackground.category ? ` (${selectedBackground.category})` : ''}.`;
+              }
+              
+              // Add selected props
+              if (selectedProps.length > 0) {
+                const propsList = selectedProps.map(p => p.name).join(', ');
+                finalScene = finalScene
+                  ? `${finalScene} Props: ${propsList}.`
+                  : `Props: ${propsList}.`;
+              }
+              
+              // Add selected lighting
+              if (selectedLighting) {
+                finalScene = finalScene
+                  ? `${finalScene} Lighting: ${selectedLighting.name}, intensity ${selectedLighting.intensity}%, temperature ${selectedLighting.temperature}K, softness ${selectedLighting.softness}%, shadow ${selectedLighting.shadow}%, direction ${selectedLighting.direction || 'front'}.`
+                  : `Lighting: ${selectedLighting.name}, intensity ${selectedLighting.intensity}%, temperature ${selectedLighting.temperature}K, softness ${selectedLighting.softness}%, shadow ${selectedLighting.shadow}%, direction ${selectedLighting.direction || 'front'}.`;
+              }
+              
               if (aspectRatio)
                 finalScene = finalScene
                   ? finalScene + ` Aspect ratio: ${aspectRatio}.`
@@ -1412,17 +1874,54 @@ export default function VirtualStudioPage() {
                 finalScene = finalScene
                   ? finalScene + ` High-resolution upscale.`
                   : `High-resolution upscale.`;
-              if (finalScene) input.scenePrompt = finalScene;
-              if (negativePrompt) input.negativePrompt = negativePrompt;
-              const result = await generateVirtualShoot(input);
-              if (result.imageUrls[0]) {
+              
+              const webhookInput: WebhookJobInput = {
+                numImages: 1,
+                scenePrompt: finalScene || undefined,
+                negativePrompt: negativePrompt || undefined,
+                aspectRatio,
+                imageQuality,
+                transparentBg,
+                upscale,
+                selectedScene,
+                selectedLighting,
+                selectedBackground,
+                selectedProps: selectedProps.length > 0 ? selectedProps : undefined,
+              };
+              
+              if (finalModelImage) {
+                webhookInput.modelImage = await fileToDataURI(finalModelImage);
+              }
+              if (finalApparelImage) {
+                webhookInput.apparelImage = await fileToDataURI(finalApparelImage);
+              }
+              if (finalModelPrompt) {
+                webhookInput.modelPrompt = finalModelPrompt;
+              }
+              if (finalApparelPrompt) {
+                webhookInput.apparelPrompt = finalApparelPrompt;
+              }
+              
+              const jobResponse = await createWebhookJob(webhookInput);
+              const status = await pollWebhookJobStatus(jobResponse.jobId);
+              
+              if (status.status === "completed" && status.imageUrls[0]) {
                 setGeneratedImages((imgs) =>
                   imgs.map((img, idx) =>
-                    idx === i ? result.imageUrls[0] : img
+                    idx === i ? status.imageUrls[0] : img
                   )
                 );
               }
-            })();
+            } catch (error) {
+              console.error("Regeneration failed:", error);
+              toast({
+                variant: "destructive",
+                title: "Regeneration failed",
+                description: "Please try again.",
+              });
+            } finally {
+              setIsGenerating(false);
+            }
           }}
           onDownload={(img) => {
             const a = document.createElement("a");
@@ -1468,6 +1967,26 @@ export default function VirtualStudioPage() {
           apparelPrompt={apparelPrompt}
           setArtDirectorOpen={setArtDirectorOpen}
           setArtDirectorOutput={setArtDirectorOutput}
+          pbLibraryOpen={pbLibraryOpen}
+          setPbLibraryOpen={setPbLibraryOpen}
+          pbActiveTab={pbActiveTab}
+          setPbActiveTab={setPbActiveTab}
+          pbCategory={pbCategory}
+          setPbCategory={setPbCategory}
+          pbItems={pbItems}
+          pbLoading={pbLoading}
+          selectedScene={selectedScene}
+          setSelectedScene={setSelectedScene}
+          selectedLighting={selectedLighting}
+          setSelectedLighting={setSelectedLighting}
+          selectedBackground={selectedBackground}
+          setSelectedBackground={setSelectedBackground}
+          selectedProps={selectedProps}
+          setSelectedProps={setSelectedProps}
+          scenes={scenes}
+          scenesLoading={scenesLoading}
+          lightingPresets={lightingPresets}
+          lightingLoading={lightingLoading}
         />
       </div>
       <Dialog

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AppSidebar from "@/components/app-sidebar";
 import AppHeader from "@/components/app-header";
@@ -12,14 +12,20 @@ export default function AppLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  
+  // Use state to avoid hydration mismatch - start with null (matches server)
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
-    if (!role) {
+    // Read from localStorage only on client after mount
+    const storedRole = localStorage.getItem("role");
+    setRole(storedRole);
+    
+    if (!storedRole) {
       router.replace("/login");
       return;
     }
-    if (role === "user") {
+    if (storedRole === "user") {
       const allowed = [
         "/dashboard",
         "/shoot/new",

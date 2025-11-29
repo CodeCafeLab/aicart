@@ -38,14 +38,20 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "",
   },
   async rewrites() {
+    // Get backend URL from environment or use default
     const backend =
       process.env.BACKEND_URL ||
       process.env.NEXT_PUBLIC_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
       "http://localhost:4000";
+    
+    // Remove trailing slash if present
+    const backendUrl = backend.replace(/\/$/, "");
+    
     return [
       {
         source: "/api/:path*",
-        destination: `${backend}/api/:path*`,
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },
