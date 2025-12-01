@@ -1,44 +1,65 @@
-name: Deploy AiCart Frontend
+name: Deploy AiKart Frontend
 
 on:
   push:
     branches:
       - main
 
+env:
+  NODE_VERSION: '20'
+
 jobs:
-  deploy:
+  quality-checks:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repo
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GIT_ACCESS_TOKEN }}
 
-      - name: Deploy Frontend
-        uses: appleboy/ssh-action@v0.1.7
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: 168.231.112.124
-          username: root
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
           script: |
-            set -e
-            echo "🚀 Deploying AiCart Frontend..."
+            set -euo pipefail
+            PROJECT_DIR="/var/www/aicart"
 
-            export GIT_USER="CodeCafeLab"
-            export GIT_TOKEN="${{ secrets.GIT_ACCESS_TOKEN }}"
+            echo "🚀 Deploying AiKart frontend to ${PROJECT_DIR}"
+            cd "${PROJECT_DIR}"
 
-            cd /var/www/aicart
-
-            git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/CodeCafeLab/aicart.git
-            git fetch --all
+            git fetch origin main --tags
             git reset --hard origin/main
-            git pull origin main
+            git clean -fd
 
-            npm install
+            npm install --legacy-peer-deps
             npm run build
 
-            pm2 restart aikart-frontend || pm2 start npm --name aikart-frontend -- run start
+            if pm2 describe aikart-frontend >/dev/null 2>&1; then
+              pm2 reload aikart-frontend
+            else
+              pm2 start npm --name aikart-frontend -- start -- -p 3005
+            fi
 
-            echo "✅ AiCart Frontend Deployed!"
+            pm2 save
+            echo "✅ AiKart frontend deploy complete"
